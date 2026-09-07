@@ -30,6 +30,15 @@
   --moon: #9fb6d8;
   --glass: #2a5a9e;
 
+  /* The studio set, taken from smartproduction.ge's own stylesheet. */
+  --steel: #2a2c30;
+  --chrome: #9a9288;
+  --brass: #b9975b;
+  --paper: #f4f1ea;
+  --tung: #ffb26b;
+  --day: #bfd4ff;
+  --flare: #6fa8ff;
+
   --text: var(--bone);
   --text-dim: #918d85;
   --text-faint: #5c5851;
@@ -86,3 +95,9 @@
 [data-accent='amber']     { --accent: var(--amber); }
 [data-accent='moon']      { --accent: var(--moon); }
 [data-accent='ash']       { --accent: #a49f96; }
+[data-accent='chrome']    { --accent: var(--chrome); }
+[data-accent='brass']     { --accent: var(--brass); }
+[data-accent='paper']     { --accent: var(--paper); }
+[data-accent='tung']      { --accent: var(--tung); }
+[data-accent='day']       { --accent: var(--day); }
+[data-accent='flare']     { --accent: var(--flare); }

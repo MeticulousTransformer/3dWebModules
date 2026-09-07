@@ -432,6 +432,113 @@ export const MODULES = [
       { key: 'clapperLength', label: 'clapper', min: 0.25, max: 1.0, step: 0.01 },
     ],
   },
+
+  // ---- fourth furnace load: the studio ------------------------------------
+  // Made with smartproduction.ge in mind: black frame, monochrome, the footage
+  // supplies the colour. So these are optical and mechanical rather than
+  // fantastical — a lens, an iris, a light, a strip of film.
+
+  {
+    id: 'aperture-iris',
+    title: 'Aperture Iris',
+    subtitle: 'f/1.4 — f/16',
+    accent: 'brass',
+    cost: 'light',
+    tags: ['studio', 'optics', 'mechanism', 'film'],
+    blurb:
+      'A camera iris built the way one works. Every blade is a plain disc, and the opening is just the part no disc covers — so the flat sides and rounded corners come out on their own, and stopping down is one number.',
+    teaches: 'geometry that falls out of the mechanism, rigid parts instead of rebuilt ones, diffraction stars',
+    controls: [
+      { key: 'starburst', label: 'starburst', min: 0, max: 3, step: 0.05, live: true },
+      { key: 'dwell', label: 'hold at stop', min: 0.2, max: 6, step: 0.1, live: true },
+      { key: 'blades', label: 'blades', min: 5, max: 16, step: 1 },
+    ],
+  },
+  {
+    id: 'bokeh-field',
+    title: 'Bokeh Field',
+    subtitle: 'behind the subject',
+    accent: 'tung',
+    cost: 'medium',
+    tags: ['studio', 'optics', 'depth of field', 'film'],
+    blurb:
+      'Out-of-focus highlights, with the three things that make them believable: the shape is the aperture, a highlight spread over more area is dimmer, and away from the middle of the frame the barrel clips them into cat’s eyes.',
+    teaches: 'circle of confusion, energy-conserving defocus, optical vignetting, lateral colour fringing',
+    controls: [
+      { key: 'aperture', label: 'aperture', min: 0.2, max: 2.2, step: 0.05, live: true },
+      { key: 'blades', label: 'blades', min: 4, max: 14, step: 1, live: true },
+      { key: 'catsEye', label: 'cat’s eye', min: 0, max: 2, step: 0.05, live: true },
+      { key: 'rim', label: 'rim', min: 0, max: 2, step: 0.05, live: true },
+    ],
+  },
+  {
+    id: 'lens-cutaway',
+    title: 'Lens Cutaway',
+    subtitle: 'snell, three times',
+    accent: 'brass',
+    cost: 'medium',
+    tags: ['studio', 'optics', 'physics', 'real maths'],
+    blurb:
+      'Three elements in section, with light actually traced through them. Every ray is intersected with each surface and bent by Snell’s law — so where they cross is where this glass focuses, not where it was drawn to.',
+    teaches: 'ray–sphere intersection, vector refraction, chromatic aberration by tracing three indices',
+    controls: [
+      { key: 'spread', label: 'fan', min: 0.2, max: 1.6, step: 0.05, live: true },
+      { key: 'dispersion', label: 'dispersion', min: 0, max: 4, step: 0.1, live: true },
+      { key: 'tilt', label: 'field angle', min: 0, max: 2, step: 0.05, live: true },
+      { key: 'rays', label: 'rays', min: 3, max: 29, step: 2 },
+    ],
+  },
+  {
+    id: 'anamorphic-flare',
+    title: 'Anamorphic Flare',
+    subtitle: 'internal reflections',
+    accent: 'flare',
+    cost: 'heavy',
+    tags: ['studio', 'optics', 'film', 'shader'],
+    blurb:
+      'The long blue streak, the ghosts strung along the line from the light through the middle of the frame, and the warm bleed around the source. The ghosts march through the centre because that is where light bouncing inside a lens comes back out.',
+    teaches: 'why flare chains point at the centre, iris-shaped ghosts, halation, lens grime',
+    controls: [
+      { key: 'streak', label: 'streak', min: 0, max: 3, step: 0.05, live: true },
+      { key: 'ghosts', label: 'ghosts', min: 0, max: 3, step: 0.05, live: true },
+      { key: 'halation', label: 'halation', min: 0, max: 3, step: 0.05, live: true },
+      { key: 'dirt', label: 'lens dirt', min: 0, max: 1, step: 0.02, live: true },
+    ],
+  },
+  {
+    id: 'light-rig',
+    title: 'Light Rig',
+    subtitle: 'key, fill, rim',
+    accent: 'paper',
+    cost: 'medium',
+    tags: ['studio', 'lighting', 'shadows', 'product'],
+    blurb:
+      'Three-point lighting on a seamless, with the fixtures left in shot. Key does the modelling and throws the shadow, fill decides how deep it goes, rim separates the subject from the backdrop. Drag to walk the key round.',
+    teaches: 'shadow maps, a cyclorama built by bending a plane, reading a lighting setup by moving it',
+    controls: [
+      { key: 'key', label: 'key', min: 0, max: 2.5, step: 0.05, live: true },
+      { key: 'fill', label: 'fill', min: 0, max: 1.5, step: 0.02, live: true },
+      { key: 'rim', label: 'rim', min: 0, max: 3, step: 0.05, live: true },
+      { key: 'keyHeight', label: 'key height', min: 0.4, max: 5, step: 0.1, live: true },
+    ],
+  },
+  {
+    id: 'frame-ribbon',
+    title: 'Frame Ribbon',
+    subtitle: '35mm',
+    accent: 'brass',
+    cost: 'medium',
+    tags: ['studio', 'film', 'ribbon', 'contact sheet'],
+    blurb:
+      'A length of film curving through the dark with something exposed on every frame. Sprocket holes, frame lines, edge markings and the picture inside each frame all come out of two texture coordinates, so a hundred frames cost what one does.',
+    teaches: 'everything from uv, procedural tonal studies, ribbons twisted along their own length',
+    controls: [
+      { key: 'speed', label: 'transport', min: -0.6, max: 0.6, step: 0.01, live: true },
+      { key: 'frames', label: 'frames', min: 6, max: 60, step: 1, live: true },
+      { key: 'curl', label: 'twist', min: 0, max: 2.4, step: 0.05, live: true },
+      { key: 'exposure', label: 'exposure', min: 0.3, max: 2.5, step: 0.05, live: true },
+    ],
+  },
 ];
 
 export const MODULE_IDS = MODULES.map((module) => module.id);
@@ -449,6 +556,7 @@ export const FAMILIES = [
   { id: 'physics', label: 'physics', tags: ['physics', 'chemistry', 'emergence', 'growth', 'turing', 'sound', 'orbits'] },
   { id: 'shaders', label: 'shaders', tags: ['shader', 'gpgpu', 'fractal', 'kaleidoscope'] },
   { id: 'gothic', label: 'gothic', tags: ['gothic', 'cathedral', 'fire', 'iron', 'moon', 'bronze'] },
+  { id: 'studio', label: 'studio', tags: ['studio', 'optics', 'lighting', 'film'] },
   { id: 'tech', label: 'tech', tags: ['matrix', 'cyberpunk', 'instancing', 'infinite', 'grid'] },
 ];
 

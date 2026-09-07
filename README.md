@@ -2,9 +2,9 @@
 
 A furnace for 3D web modules.
 
-Twenty-four three.js pieces — alchemy, Georgian and Japanese sign, physics,
-chemistry, neon, and a wing of gothic stone — each written as **one file you
-can pick up and drop somewhere else**. The website around them is an Astro static site that exists
+Thirty three.js pieces — alchemy, Georgian and Japanese sign, physics,
+chemistry, neon, a wing of gothic stone, and a studio bench of optics — each
+written as **one file you can pick up and drop somewhere else**. The website around them is an Astro static site that exists
 mainly to show them running, let you tune them, and hand you the source.
 
 ```bash
@@ -74,6 +74,7 @@ src/
     fullscreen.js     a quad that always covers the canvas, for shader-only work
     pingpong.js       two render targets that take turns — simulations on the GPU
     lightshaft.js     the beam through a high window, faked with one quad
+    filmlook.js       grain, gate weave and a vignette, laid over the top
     random.js         seeded randomness, so a rebuild gives back what you had
     glyphs.js         characters -> textures (atlas or strip)
     textures.js       procedural glows and environment maps
@@ -119,7 +120,7 @@ This is not a claim, it is a handful of specific decisions:
   tab, zero frames are drawn.
 - **WebGL contexts are budgeted.** A browser only gives you eight to sixteen
   live contexts before it starts silently killing the oldest. The gallery has
-  twenty-six canvases, so `mount-manager.js` mounts modules as they scroll in and
+  thirty-two canvases, so `mount-manager.js` mounts modules as they scroll in and
   disposes them when they leave — three alive at a time on a phone, six on a
   desktop. Verified, not assumed.
 - **Filtering falls out of that for free.** Hiding a card takes it out of the
@@ -219,6 +220,30 @@ two things.
 | Ashen Ember | a fire in a ring of stones, and nothing else | medium |
 | Iron Chandelier | a wrought corona on a chain, real pendulum physics on two axes | light |
 | The Tolling | a bell and a clapper on two pendulums; the rhythm is the difference | light |
+| Aperture Iris | every blade a plain disc; the opening is what none of them cover | light |
+| Bokeh Field | defocus that conserves energy, with cat's-eye clipping at the edges | medium |
+| Lens Cutaway | three elements with light actually traced through by Snell's law | medium |
+| Anamorphic Flare | the streak, and ghosts marching through the centre of frame | heavy |
+| Light Rig | key, fill and rim on a seamless, with the fixtures left in shot | medium |
+| Frame Ribbon | 35mm curving through the dark, every frame drawn from two uvs | medium |
+
+---
+
+## The studio set
+
+The last six were made to sit on a particular site — smartproduction.ge, a
+video and photo studio in Tbilisi. Their stylesheet is five custom properties:
+
+```
+--background #0b0b0c   --foreground #f4f1ea   --muted #a8a39a
+--accent     #b9975b   --border     #1f1f23
+```
+
+Those exact values are the `STUDIO` group in `src/lib/palette.js`, so a module
+dropped onto that site is already the right colour. Brass accent, warm off-white,
+near-black ground. And because a production company's site should let the
+footage supply the colour, these six are optical and mechanical rather than
+fantastical: a lens, an iris, a light, a strip of film.
 
 ---
 
@@ -229,5 +254,6 @@ two things.
 - The simplex noise in `src/lib/glsl.js` is Ashima Arts' standard
   implementation, MIT licensed, unmodified.
 - Everything else here is yours. Take it.
-#   3 d W e b M o d u l e s  
+#   3 d W e b M o d u l e s 
+ 
  
