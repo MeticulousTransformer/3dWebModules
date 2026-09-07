@@ -55,6 +55,18 @@ export const STUDIO = {
   flare:  0x6fa8ff, // what an anamorphic does to a highlight
 };
 
+/** The brassworks: oil, iron, and everything that was ever polished. */
+export const WORKS = {
+  soot:   0x0d0b09, // the back of the engine house
+  oil:    0x1a1512, // where it has all run down to
+  iron:   0x3a3430, // castings, columns, frames
+  patina: 0x4e7a6a, // copper that has been outside
+  copper: 0xb06a3b, // pipework
+  brass:  0xc9a227, // anything anyone thought worth polishing
+  steam:  0xd8d2c6,
+  ember:  0xff7a2a, // firebox, gauge lamp
+};
+
 /** Same values as CSS strings, for canvas2d work and inline styles. */
 export const CSS_PALETTE = Object.fromEntries(
   Object.entries(PALETTE).map(([name, value]) => [name, toCss(value)]),
@@ -66,6 +78,10 @@ export const CSS_GOTHIC = Object.fromEntries(
 
 export const CSS_STUDIO = Object.fromEntries(
   Object.entries(STUDIO).map(([name, value]) => [name, toCss(value)]),
+);
+
+export const CSS_WORKS = Object.fromEntries(
+  Object.entries(WORKS).map(([name, value]) => [name, toCss(value)]),
 );
 
 function toCss(value) {

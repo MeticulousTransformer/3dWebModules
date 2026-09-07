@@ -97,13 +97,23 @@ export function createStage(canvas, options = {}) {
   let disposed = false;
 
   // ---- sizing -------------------------------------------------------------
-  function applySize() {
+  /**
+   * @param force run the onResize callbacks even if nothing actually changed.
+   *
+   * start() forces it. Without that, a canvas that already has its final size
+   * when the stage is built never fires a resize at all, and any module that
+   * scales itself to fit in onResize silently stays at scale 1. That failure
+   * hides itself, because most fits are Math.min(1, ...) and 1 is what you get
+   * anyway — it only shows up on something that needed to shrink.
+   */
+  function applySize(force = false) {
     const rect = canvas.getBoundingClientRect();
     const width = Math.max(1, Math.round(rect.width));
     const height = Math.max(1, Math.round(rect.height));
     const pixelRatio = Math.min(window.devicePixelRatio || 1, maxPixelRatio);
 
-    if (width === size.width && height === size.height && pixelRatio === size.pixelRatio) return;
+    const unchanged = width === size.width && height === size.height && pixelRatio === size.pixelRatio;
+    if (unchanged && !force) return;
 
     size.width = width;
     size.height = height;
@@ -236,7 +246,7 @@ export function createStage(canvas, options = {}) {
     start() {
       if (disposed) return stage;
       state.running = true;
-      applySize();
+      applySize(true);
       if (reducedMotion) renderOnce();
       else syncLoop();
       return stage;

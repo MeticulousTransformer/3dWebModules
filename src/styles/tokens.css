@@ -39,6 +39,13 @@
   --day: #bfd4ff;
   --flare: #6fa8ff;
 
+  /* The brassworks. */
+  --iron: #3a3430;
+  --patina: #4e7a6a;
+  --copper: #b06a3b;
+  --polished: #c9a227;
+  --ember: #ff7a2a;
+
   --text: var(--bone);
   --text-dim: #918d85;
   --text-faint: #5c5851;
@@ -97,6 +104,10 @@
 [data-accent='ash']       { --accent: #a49f96; }
 [data-accent='chrome']    { --accent: var(--chrome); }
 [data-accent='brass']     { --accent: var(--brass); }
+[data-accent='polished']  { --accent: var(--polished); }
+[data-accent='copper']    { --accent: var(--copper); }
+[data-accent='patina']    { --accent: var(--patina); }
+[data-accent='ember']     { --accent: var(--ember); }
 [data-accent='paper']     { --accent: var(--paper); }
 [data-accent='tung']      { --accent: var(--tung); }
 [data-accent='day']       { --accent: var(--day); }
