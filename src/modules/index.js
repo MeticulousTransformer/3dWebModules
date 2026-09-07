@@ -15,8 +15,12 @@
 /**
  * Vite turns this into a map of lazy imports, one chunk per module, so the
  * gallery page only downloads the modules you actually scroll to.
+ *
+ * The two exclusions matter: without them this file and sources.js end up in
+ * the map too, and sources.js carries every module's text — 120kb of dead
+ * weight shipped to the browser for no reason.
  */
-const loaders = import.meta.glob('./*.js');
+const loaders = import.meta.glob(['./*.js', '!./index.js', '!./sources.js']);
 
 export const MODULES = [
   {

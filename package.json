@@ -7,5 +7,11 @@
     "dev": "astro dev --host",
     "build": "astro build",
     "preview": "astro preview --host"
+  },
+  "description": "A furnace for 3d web modules — isolated three.js pieces on an Astro site.",
+  "dependencies": {
+    "astro": "^7.3.1",
+    "shiki": "^4.4.3",
+    "three": "^0.185.1"
   }
 }
