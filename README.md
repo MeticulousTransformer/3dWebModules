@@ -1,0 +1,181 @@
+# ATHANOR · ათანორი
+
+A furnace for 3D web modules.
+
+Twelve three.js pieces — alchemy, Georgian and Japanese sign, physics, neon —
+each written as **one file you can pick up and drop somewhere else**. The
+website around them is an Astro static site that exists mainly to show them
+running and hand you the source.
+
+```bash
+npm install
+npm run dev      # http://localhost:4321
+npm run build    # static files in dist/
+```
+
+---
+
+## The one idea
+
+Every module is a plain function. It takes a canvas, it returns a handle:
+
+```js
+import create from './src/modules/borjgali-vortex.js';
+
+const wheel = create(document.querySelector('canvas'), { arms: 7, spin: 0.5 });
+
+// when the component unmounts, the route changes, whatever
+wheel.dispose();
+```
+
+`start()`, `stop()` and `dispose()` are the entire API. A couple of modules add
+one `setParam(key, value)`.
+
+No module imports anything from this website. Not the layout, not the config,
+not a store, not a context. They import `three` and two or three small helpers
+from `src/lib/`, and nothing else. That is the whole design, and everything
+else in this repo follows from it.
+
+### Taking one with you
+
+1. Copy the module file, e.g. `src/modules/chladni-plate.js`
+2. Copy the helpers it imports — its page on the site lists them exactly, and
+   so do the import lines at the top of the file. It is usually
+   `src/lib/stage.js` and `src/lib/pointer.js`.
+3. `npm i three`
+
+That is it. There are no assets to bring: every texture in this project is
+drawn with canvas2d at runtime, so there is no `public/` folder to keep in sync
+and nothing to 404.
+
+---
+
+## Reading the code
+
+```
+src/
+  lib/                the shared baseplate — small, boring, heavily commented
+    stage.js          renderer + camera + the animation loop + teardown
+    pointer.js        mouse, finger and phone tilt, normalised to -1..1
+    mount-manager.js  which canvases on a page are allowed to be alive
+    fullscreen.js     a quad that always covers the canvas, for shader-only work
+    glyphs.js         characters -> textures (atlas or strip)
+    textures.js       procedural glows and environment maps
+    glsl.js           shader snippets more than one module needs
+    device.js         one honest guess at how much this machine can take
+    palette.js        the nine colours, for three.js
+
+  modules/            the actual work. one file each.
+    index.js          the catalogue — the only file that knows they all exist
+    sources.js        build-time only: module source as text, for the site
+
+  components/         Astro pieces
+  layouts/            the page shell
+  pages/              / and /m/[id]
+  styles/             tokens.css (every value) and base.css (the reset)
+  site.config.js      name, links, the words on the front page
+```
+
+`src/lib/stage.js` is the file to read first. It is 280 lines and it is the
+thing every module sits on.
+
+### Why the code looks like this
+
+- **Flat functions and plain arrays.** No classes, no inheritance, no registry
+  of registries. If you can read one module you can read all of them.
+- **Comments say why, not what.** The line underneath already says what.
+- **One place per value.** Colours live in `tokens.css` and `palette.js`, sizes
+  live in `tokens.css`, the module list lives in `modules/index.js`.
+- **Nothing clever.** Where there was a choice between short and obvious, the
+  code is obvious.
+
+---
+
+## Mobile first, honestly
+
+This is not a claim, it is a handful of specific decisions:
+
+- **The loop only runs when it can be seen.** `stage.js` watches an
+  `IntersectionObserver` and `visibilitychange`. Off screen or in a background
+  tab, zero frames are drawn.
+- **WebGL contexts are budgeted.** A browser only gives you eight to sixteen
+  live contexts before it starts silently killing the oldest. The gallery has
+  fourteen canvases, so `mount-manager.js` mounts modules as they scroll in and
+  disposes them when they leave — three alive at a time on a phone, six on a
+  desktop. Verified, not assumed.
+- **Pixel ratio is capped**, and the expensive shader modules cap it lower again.
+- **Particle counts and geometry detail come from `device.js`**, so a phone gets
+  2,600 particles where a desktop gets 7,000.
+- **`prefers-reduced-motion` renders one still frame** instead of animating.
+- **`touch-action: pan-y`** on every canvas, so a finger can still scroll the
+  page past a module that wants pointer events.
+- Astro ships **no JavaScript at all** until a canvas needs it, and three.js is
+  split into its own chunk so it is downloaded once and cached for every module.
+
+### Disposal actually disposes
+
+`stage.dispose()` cancels the frame loop, disconnects both observers, removes
+its listeners, walks the scene releasing every geometry, material and texture,
+and then calls `forceContextLoss()` to hand the GL context straight back.
+
+One consequence worth knowing, because it cost an hour: **a canvas whose context
+has been force-lost can never get another one.** `getContext()` returns null
+from then on. That is why `mount-manager.js` throws the old `<canvas>` element
+away and puts a fresh one in its place on unmount.
+
+---
+
+## Adding a module
+
+1. Write `src/modules/your-thing.js`. Copy the shape of an existing one — they
+   all look the same on purpose:
+
+   ```js
+   export const defaults = { /* every knob, with a comment */ };
+
+   export default function create(canvas, options = {}) {
+     const params = { ...defaults, ...options };
+     const stage = createStage(canvas, { camera: { position: [0, 0, 5] } });
+
+     // build your scene here
+
+     stage.onFrame(({ time, dt }) => { /* move it */ });
+     stage.onDispose(() => { /* release anything stage cannot find */ });
+
+     return stage.start();
+   }
+   ```
+
+2. Add an entry to the `MODULES` array in `src/modules/index.js`.
+
+That is both steps. The gallery card, the detail page, the file list and the
+syntax-highlighted source panel are all generated from those two things.
+
+---
+
+## The modules
+
+| module | what it is | cost |
+|---|---|---|
+| Borjgali Vortex | the seven-armed Georgian sun sign, extruded in gold and repeated into depth | light |
+| Hermetic Seal | two engraved discs turning against each other, as above so below | light |
+| Glyph Rain | falling code in Asomtavruli, katakana and planetary signs — one draw call | light |
+| Enso / Void | the zen circle, painted in one breath, drawn differently every time | light |
+| Mycelium Net | a fungal network growing forever inside a fixed ring buffer | medium |
+| Quintessence | a drop of living mercury, noise-displaced and iridescent | medium |
+| Psilocybin Field | domain-warped noise through a kaleidoscope | heavy |
+| Neon Lattice | an endless city corridor built from recycled instances | medium |
+| Basalt Idol | a god's head cut from primitives, with a scanner crawling up it | light |
+| Gravity Well | real n-body gravity, symplectic integration, your finger is a mass | medium |
+| Chladni Plate | sand on a vibrating plate, settling on the nodal lines | medium |
+| Sigil Forge | chaos magic's letter method — type a sentence, get its sigil | light |
+
+---
+
+## Notes
+
+- Fonts are Cinzel and JetBrains Mono, loaded from Google Fonts. If you would
+  rather self-host them, it is one `<link>` in `src/layouts/Base.astro`.
+- The simplex noise in `src/lib/glsl.js` is Ashima Arts' standard
+  implementation, MIT licensed, unmodified.
+- Everything else here is yours. Take it.

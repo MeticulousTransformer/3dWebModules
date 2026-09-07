@@ -1,0 +1,89 @@
+---
+import '../styles/tokens.css';
+import '../styles/base.css';
+import { SITE } from '../site.config.js';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+
+const {
+  title,
+  description = SITE.description,
+  accent = 'gold',
+  current,
+} = Astro.props;
+
+const pageTitle = title ? `${title} · ${SITE.name}` : `${SITE.name} — ${SITE.tagline}`;
+
+const FAVICON =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E" +
+  "%3Crect width='32' height='32' fill='%2305060a'/%3E" +
+  "%3Cg stroke='%23ffb340' stroke-width='2' stroke-linecap='round' fill='none'%3E" +
+  "%3Cpath d='M21 16L28 16'/%3E%3Cpath d='M19.1 20.9L23.5 25.4'/%3E%3Cpath d='M14.9 20.9L13.3 25.7'/%3E" +
+  "%3Cpath d='M11.5 18.2L5.2 21.2'/%3E%3Cpath d='M11.5 13.8L5.2 10.8'/%3E%3Cpath d='M14.9 11.1L13.3 6.3'/%3E" +
+  "%3Cpath d='M19.1 12.1L23.5 6.6'/%3E%3C/g%3E" +
+  "%3Ccircle cx='16' cy='16' r='3.4' fill='%23ffb340'/%3E%3C/svg%3E";
+---
+
+<!doctype html>
+<html lang="en" data-accent={accent}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#05060a" />
+
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+
+    <link rel="icon" href={FAVICON} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=JetBrains+Mono:wght@300;400;500&display=swap"
+    />
+
+    <!-- Set before first paint so the reveal animations do not flash. -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+  </head>
+
+  <body>
+    <SiteHeader current={current} />
+
+    <main>
+      <slot />
+    </main>
+
+    <SiteFooter />
+
+    <script>
+      // Fade blocks in as they arrive. If someone asked for less motion, they
+      // are simply visible from the start.
+      const blocks = document.querySelectorAll('.reveal');
+      const stillPlease = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (stillPlease) {
+        for (const block of blocks) block.classList.add('is-visible');
+      } else {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          },
+          { rootMargin: '0px 0px -6% 0px' },
+        );
+        for (const block of blocks) observer.observe(block);
+      }
+    </script>
+  </body>
+</html>

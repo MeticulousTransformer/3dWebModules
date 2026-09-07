@@ -1,0 +1,399 @@
+---
+import Base from '../layouts/Base.astro';
+import ModuleCanvas from '../components/ModuleCanvas.astro';
+import ModuleCard from '../components/ModuleCard.astro';
+import { MODULES } from '../modules/index.js';
+import { SITE } from '../site.config.js';
+
+const specs = [
+  ['modules', `${MODULES.length}, each one file`],
+  ['renderer', 'three.js on raw webgl'],
+  ['framework', 'astro — no javascript until a canvas needs it'],
+  ['assets', 'none. every texture is drawn at runtime'],
+  ['built for', 'a phone held in one hand'],
+  ['licence', 'take it'],
+];
+
+const steps = [
+  {
+    n: '01',
+    title: 'Copy two files',
+    body: 'The module you want, and src/lib/stage.js. Most modules also want pointer.js. Every module page lists exactly which ones.',
+  },
+  {
+    n: '02',
+    title: 'npm i three',
+    body: 'That is the entire dependency list. No loaders, no post-processing stack, no asset folder, no config.',
+  },
+  {
+    n: '03',
+    title: 'Call it with a canvas',
+    body: 'It returns a handle. Call dispose() when the thing unmounts and the GPU memory goes back where it came from.',
+  },
+];
+---
+
+<Base current="modules">
+  <!-- ================= hero ================= -->
+  <section class="hero">
+    <div class="hero__bg">
+      <ModuleCanvas id="glyph-rain" accent="acid" height="100%" />
+    </div>
+    <div class="hero__veil" aria-hidden="true"></div>
+
+    <div class="hero__content">
+      <p class="label hero__status">{SITE.status}</p>
+
+      <h1 class="hero__title display">{SITE.name}</h1>
+      <p class="hero__georgian">{SITE.georgian}</p>
+      <p class="hero__tagline">{SITE.tagline}</p>
+
+      <ul class="hero__chips">
+        <li>{MODULES.length} modules</li>
+        <li>three.js</li>
+        <li>astro</li>
+        <li>zero assets</li>
+      </ul>
+    </div>
+
+    <a class="hero__enter" href="#modules">
+      <span>enter the works</span>
+      <span class="hero__arrow">↓</span>
+    </a>
+  </section>
+
+  <!-- ================= manifesto ================= -->
+  <section class="manifesto page reveal" id="about">
+    <div class="manifesto__text">
+      <p class="label label--accent">what this is</p>
+      <p class="manifesto__lead">
+        Every module here is <strong>one file</strong>. It takes a canvas, it hands back a
+        handle with <code>dispose()</code> on it, and it knows nothing whatsoever about
+        this website.
+      </p>
+      <p class="prose">
+        No framework inside it, no store, no context, no build step of its own. Copy the
+        file, copy the two or three helpers it imports, install three, and it runs wherever
+        you put it — a React app, a plain HTML page, someone else's landing page at two in
+        the morning.
+      </p>
+      <p class="prose">
+        That constraint is the whole design. It is also why the code is deliberately
+        boring: flat functions, plain arrays, variables with real names, and comments that
+        explain <strong>why</strong> rather than restating the line underneath. You should
+        be able to read any module top to bottom in one sitting and change the part you
+        came for.
+      </p>
+    </div>
+
+    <dl class="specs">
+      {specs.map(([key, value]) => (
+        <div class="specs__row">
+          <dt class="label">{key}</dt>
+          <dd>{value}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <!-- ================= feature band ================= -->
+  <section class="feature reveal" data-accent="gold">
+    <div class="feature__canvas">
+      <ModuleCanvas id="hermetic-seal" accent="gold" height="100%" />
+    </div>
+    <div class="feature__copy">
+      <p class="label label--accent">featured</p>
+      <h2 class="feature__title display">Hermetic Seal</h2>
+      <p class="prose">
+        Two discs of engraved geometry turning against each other with a column of light
+        between them. Built as a machine with rims and struts, not a flat emblem — because
+        the interesting part of <em>as above, so below</em> is that it describes a mechanism.
+      </p>
+      <a class="button" href="/m/hermetic-seal">read the source</a>
+    </div>
+  </section>
+
+  <!-- ================= the grid ================= -->
+  <section class="modules page" id="modules">
+    <header class="modules__head reveal">
+      <p class="label label--accent">the works</p>
+      <h2 class="modules__title display">{MODULES.length} modules</h2>
+      <p class="prose">
+        Canvases wake as they scroll into view and are torn down when they leave, so the
+        page never holds more live WebGL contexts than a browser is willing to give it.
+        Three at a time on a phone, six on a desktop.
+      </p>
+    </header>
+
+    <div class="modules__grid">
+      {MODULES.map((module) => <ModuleCard module={module} />)}
+    </div>
+  </section>
+
+  <!-- ================= lift ================= -->
+  <section class="lift page reveal" id="lift">
+    <p class="label label--accent">taking one with you</p>
+    <h2 class="lift__title display">Lift any of these</h2>
+
+    <ol class="lift__steps">
+      {steps.map((step) => (
+        <li class="lift__step corners">
+          <p class="lift__n label">{step.n}</p>
+          <h3 class="lift__step-title">{step.title}</h3>
+          <p class="lift__body">{step.body}</p>
+        </li>
+      ))}
+    </ol>
+
+    <div class="lift__code">
+      <p class="label">the entire api</p>
+      <pre><code>{`import create from './modules/borjgali-vortex.js';
+
+const canvas = document.querySelector('#hero-canvas');
+const wheel = create(canvas, { arms: 7, spin: 0.5 });
+
+// when the component goes away
+wheel.dispose();`}</code></pre>
+      <p class="lift__note">
+        That is all of it. <code>start()</code>, <code>stop()</code> and
+        <code>dispose()</code> are the only methods, and a few modules add a single
+        <code>setParam(key, value)</code>.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ---------- hero ---------- */
+  .hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 88svh;
+    padding-block: var(--space-6) var(--space-4);
+    overflow: hidden;
+  }
+
+  .hero__bg { position: absolute; inset: 0; }
+  .hero__bg :global(.stage) { height: 100%; border: 0; border-radius: 0; }
+
+  .hero__veil {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(5, 6, 10, 0.86) 0%, rgba(5, 6, 10, 0.30) 40%, rgba(5, 6, 10, 0.94) 100%),
+      radial-gradient(80% 60% at 50% 60%, transparent, rgba(5, 6, 10, 0.7));
+    pointer-events: none;
+  }
+
+  .hero__content {
+    position: relative;
+    width: var(--page);
+    margin-inline: auto;
+    pointer-events: none;
+  }
+
+  .hero__status { margin-bottom: var(--space-3); color: var(--acid); }
+
+  .hero__title {
+    font-size: var(--text-3xl);
+    letter-spacing: 0.06em;
+    text-shadow: 0 0 60px rgba(5, 6, 10, 0.9);
+  }
+
+  .hero__georgian {
+    margin-top: var(--space-1);
+    font-size: var(--text-lg);
+    letter-spacing: 0.4em;
+    color: var(--gold);
+  }
+
+  .hero__tagline {
+    margin-top: var(--space-2);
+    font-size: var(--text-md);
+    color: var(--text-dim);
+  }
+
+  .hero__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: var(--space-3);
+    padding: 0;
+    list-style: none;
+    font-size: var(--text-xs);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .hero__chips li {
+    padding: 0.3em 0.8em;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(5, 6, 10, 0.5);
+  }
+
+  .hero__enter {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.8em;
+    width: var(--page);
+    margin: var(--space-5) auto 0;
+    font-size: var(--text-xs);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    transition: color 0.3s var(--ease);
+  }
+  .hero__enter:hover { color: var(--acid); }
+  .hero__arrow { animation: nudge 2.4s var(--ease) infinite; }
+
+  @keyframes nudge {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(5px); }
+  }
+
+  /* ---------- manifesto ---------- */
+  .manifesto {
+    display: grid;
+    gap: var(--space-4);
+    padding-block: var(--space-6);
+  }
+
+  .manifesto__text { display: flex; flex-direction: column; gap: var(--space-2); }
+
+  .manifesto__lead {
+    font-size: var(--text-lg);
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  .manifesto code {
+    font-size: 0.92em;
+    color: var(--gold);
+  }
+
+  .specs { margin: 0; align-self: start; }
+
+  .specs__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-3);
+    padding-block: 0.7rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .specs dd {
+    margin: 0;
+    text-align: right;
+    font-size: var(--text-sm);
+    color: var(--text-dim);
+  }
+
+  @media (min-width: 56em) {
+    .manifesto { grid-template-columns: 1.35fr 1fr; gap: var(--space-5); }
+  }
+
+  /* ---------- feature ---------- */
+  .feature {
+    display: grid;
+    gap: 0;
+    border-block: 1px solid var(--line);
+  }
+
+  .feature__canvas { min-height: 58svh; }
+  .feature__canvas :global(.stage) { height: 100%; border: 0; border-radius: 0; }
+
+  .feature__copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    align-items: flex-start;
+    justify-content: center;
+    padding: var(--space-4) max(1rem, calc((100vw - var(--page)) / 2));
+  }
+
+  .feature__title { font-size: var(--text-xl); }
+
+  @media (min-width: 56em) {
+    .feature { grid-template-columns: 1.2fr 1fr; }
+    .feature__canvas { min-height: 70svh; }
+    .feature__copy { padding-inline: var(--space-5); }
+  }
+
+  /* ---------- grid ---------- */
+  .modules { padding-block: var(--space-6) var(--space-4); scroll-margin-top: 4rem; }
+
+  .modules__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+
+  .modules__title { font-size: var(--text-xl); }
+
+  .modules__grid {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 52em) {
+    .modules__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+  }
+
+  /* ---------- lift ---------- */
+  .lift { padding-block: var(--space-5); scroll-margin-top: 4rem; }
+
+  .lift__title { font-size: var(--text-xl); margin-block: var(--space-1) var(--space-4); }
+
+  .lift__steps {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0 0 var(--space-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .lift__step {
+    padding: var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  .lift__n { color: var(--accent); }
+
+  .lift__step-title {
+    margin-block: var(--space-1);
+    font-size: var(--text-md);
+    font-weight: 400;
+  }
+
+  .lift__body { font-size: var(--text-sm); color: var(--text-dim); }
+
+  @media (min-width: 52em) {
+    .lift__steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  .lift__code {
+    padding: var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--ink);
+  }
+
+  .lift__code pre {
+    overflow-x: auto;
+    margin-block: var(--space-2);
+    font-size: var(--text-sm);
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .lift__note { font-size: var(--text-sm); color: var(--text-dim); }
+  .lift__note code, .lift__code code { color: var(--gold); }
+</style>

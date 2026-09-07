@@ -1,0 +1,50 @@
+---
+import { SITE } from '../site.config.js';
+---
+
+<footer class="footer">
+  <div class="footer__inner page">
+    <div>
+      <p class="label">{SITE.name} · {SITE.georgian}</p>
+      <p class="footer__line">{SITE.tagline}</p>
+    </div>
+
+    <nav class="footer__links">
+      <a class="link" href={SITE.links.github} target="_blank" rel="noreferrer">github</a>
+      <a class="link" href={SITE.links.studio} target="_blank" rel="noreferrer">smartproduction.ge</a>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--line);
+    margin-top: var(--space-7);
+    padding-block: var(--space-4) var(--space-5);
+  }
+
+  .footer__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .footer__line {
+    color: var(--text-faint);
+    font-size: var(--text-sm);
+  }
+
+  .footer__links {
+    display: flex;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  @media (min-width: 40em) {
+    .footer__inner {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+  }
+</style>

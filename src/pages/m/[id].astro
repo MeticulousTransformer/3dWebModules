@@ -1,0 +1,348 @@
+---
+import { codeToHtml } from 'shiki';
+import Base from '../../layouts/Base.astro';
+import ModuleCanvas from '../../components/ModuleCanvas.astro';
+import { MODULES } from '../../modules/index.js';
+import { getSource, getDependencies, getSourceStats } from '../../modules/sources.js';
+
+export function getStaticPaths() {
+  return MODULES.map((module, index) => ({
+    params: { id: module.id },
+    props: {
+      module,
+      previous: MODULES[(index - 1 + MODULES.length) % MODULES.length],
+      next: MODULES[(index + 1) % MODULES.length],
+    },
+  }));
+}
+
+const { module, previous, next } = Astro.props;
+
+const source = getSource(module.id);
+const dependencies = getDependencies(module.id);
+const stats = getSourceStats(module.id);
+
+const highlighted = await codeToHtml(source, { lang: 'javascript', theme: 'vesper' });
+
+// Only this module exposes a live knob, so only this page shows the input.
+const hasPhraseInput = module.id === 'sigil-forge';
+---
+
+<Base title={module.title} description={module.blurb} accent={module.accent}>
+  <!-- ============ the module, running ============ -->
+  <section class="show">
+    <div class="show__canvas">
+      <ModuleCanvas id={module.id} accent={module.accent} height="100%" />
+    </div>
+
+    <div class="show__veil" aria-hidden="true"></div>
+
+    <header class="show__head">
+      <p class="label label--accent">{module.subtitle}</p>
+      <h1 class="show__title display">{module.title}</h1>
+    </header>
+  </section>
+
+  {hasPhraseInput && (
+    <section class="page control reveal">
+      <label class="label" for="phrase">your intent — the sigil re-forges as you type</label>
+      <input
+        id="phrase"
+        class="control__input"
+        type="text"
+        value="AS ABOVE SO BELOW"
+        maxlength="64"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <p class="control__hint">
+        vowels are struck out, repeats are struck out, and what survives becomes the shape.
+      </p>
+    </section>
+  )}
+
+  <!-- ============ what it is ============ -->
+  <section class="page about reveal">
+    <div class="about__main">
+      <p class="about__blurb">{module.blurb}</p>
+      <p class="label label--accent">worth stealing</p>
+      <p class="prose">{module.teaches}</p>
+    </div>
+
+    <dl class="facts">
+      <div class="facts__row">
+        <dt class="label">gpu cost</dt>
+        <dd data-cost={module.cost}>{module.cost}</dd>
+      </div>
+      <div class="facts__row">
+        <dt class="label">source</dt>
+        <dd>{stats.lines} lines · {(stats.bytes / 1024).toFixed(1)} kb</dd>
+      </div>
+      <div class="facts__row">
+        <dt class="label">tags</dt>
+        <dd>{module.tags.join(' · ')}</dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ============ how to take it ============ -->
+  <section class="page take reveal">
+    <p class="label label--accent">to use this somewhere else</p>
+    <h2 class="take__title display">Copy these files</h2>
+
+    <ol class="files">
+      <li class="files__item files__item--self">
+        <span class="files__path">src/modules/{module.id}.js</span>
+        <span class="files__note">the module itself</span>
+      </li>
+      {dependencies.map((file) => (
+        <li class="files__item">
+          <span class="files__path">src/lib/{file}</span>
+          <span class="files__note">shared helper</span>
+        </li>
+      ))}
+      <li class="files__item files__item--dep">
+        <span class="files__path">npm i three</span>
+        <span class="files__note">the only package</span>
+      </li>
+    </ol>
+
+    <pre class="usage"><code>{`import create from './${module.id}.js';
+
+const instance = create(document.querySelector('canvas'));
+// ... later
+instance.dispose();`}</code></pre>
+  </section>
+
+  <!-- ============ the source ============ -->
+  <section class="page source reveal" id="source">
+    <div class="source__head">
+      <div>
+        <p class="label label--accent">the whole file</p>
+        <h2 class="source__title display">{module.id}.js</h2>
+      </div>
+      <button class="button" type="button" data-copy>copy</button>
+    </div>
+
+    <div class="source__code" set:html={highlighted} />
+  </section>
+
+  <!-- ============ next ============ -->
+  <nav class="page pager reveal">
+    <a class="pager__link" href={`/m/${previous.id}`}>
+      <span class="label">previous</span>
+      <span class="pager__name">{previous.title}</span>
+    </a>
+    <a class="pager__link pager__link--next" href={`/m/${next.id}`}>
+      <span class="label">next</span>
+      <span class="pager__name">{next.title}</span>
+    </a>
+  </nav>
+</Base>
+
+<script>
+  // ---- copy the source ----------------------------------------------------
+  const copyButton = document.querySelector('[data-copy]');
+  const codeBlock = document.querySelector('.source__code pre');
+
+  if (copyButton && codeBlock) {
+    copyButton.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(codeBlock.textContent ?? '');
+        copyButton.textContent = 'copied';
+      } catch {
+        copyButton.textContent = 'press ctrl+c';
+      }
+      setTimeout(() => { copyButton.textContent = 'copy'; }, 2000);
+    });
+  }
+
+  // ---- live parameter, for the modules that expose one --------------------
+  const phraseInput = document.querySelector('#phrase');
+  const stageElement = document.querySelector('[data-module]');
+
+  if (phraseInput && stageElement) {
+    let live = null;
+
+    // The mount manager tells us when the module actually starts, and when it
+    // is torn down for scrolling out of view.
+    stageElement.addEventListener('module:mounted', (event) => {
+      live = event.detail.instance;
+      if (live.setParam) live.setParam('phrase', phraseInput.value);
+    });
+    stageElement.addEventListener('module:unmounted', () => { live = null; });
+
+    phraseInput.addEventListener('input', () => {
+      if (live && live.setParam) live.setParam('phrase', phraseInput.value);
+    });
+  }
+</script>
+
+<style>
+  /* ---------- the running module ---------- */
+  .show {
+    position: relative;
+    min-height: 62svh;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .show__canvas { position: absolute; inset: 0; }
+  .show__canvas :global(.stage) { height: 100%; border: 0; border-radius: 0; }
+
+  .show__veil {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(5, 6, 10, 0.55) 0%, transparent 35%, rgba(5, 6, 10, 0.92) 100%);
+  }
+
+  .show__head {
+    position: relative;
+    width: var(--page);
+    margin: 0 auto;
+    padding-block: var(--space-4);
+    pointer-events: none;
+  }
+
+  .show__title { font-size: var(--text-2xl); margin-top: var(--space-1); }
+
+  /* ---------- live control ---------- */
+  .control {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-block: var(--space-4);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .control__input {
+    width: 100%;
+    padding: 0.8em 1em;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--ink);
+    color: var(--accent);
+    font-size: var(--text-lg);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .control__input:focus { outline: 1px solid var(--accent); outline-offset: 2px; }
+
+  .control__hint { font-size: var(--text-sm); color: var(--text-faint); }
+
+  /* ---------- about ---------- */
+  .about {
+    display: grid;
+    gap: var(--space-4);
+    padding-block: var(--space-5);
+  }
+
+  .about__main { display: flex; flex-direction: column; gap: var(--space-2); }
+
+  .about__blurb {
+    font-size: var(--text-lg);
+    line-height: 1.55;
+    margin-bottom: var(--space-2);
+  }
+
+  .facts { margin: 0; align-self: start; }
+
+  .facts__row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-block: 0.7rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .facts dd { margin: 0; font-size: var(--text-sm); color: var(--text-dim); text-align: right; }
+  .facts dd[data-cost='light']  { color: var(--acid); }
+  .facts dd[data-cost='medium'] { color: var(--gold); }
+  .facts dd[data-cost='heavy']  { color: var(--vermilion); }
+
+  @media (min-width: 56em) {
+    .about { grid-template-columns: 1.4fr 1fr; gap: var(--space-5); }
+  }
+
+  /* ---------- files ---------- */
+  .take { padding-block: var(--space-4); }
+  .take__title { font-size: var(--text-xl); margin-block: var(--space-1) var(--space-3); }
+
+  .files { margin: 0 0 var(--space-3); padding: 0; list-style: none; }
+
+  .files__item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding-block: 0.65rem;
+    border-bottom: 1px solid var(--line);
+    font-size: var(--text-sm);
+  }
+
+  .files__path { color: var(--text); }
+  .files__item--self .files__path { color: var(--accent); }
+  .files__item--dep .files__path { color: var(--acid); }
+  .files__note { color: var(--text-faint); font-size: var(--text-xs); letter-spacing: 0.14em; text-transform: uppercase; }
+
+  .usage {
+    overflow-x: auto;
+    padding: var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--ink);
+    font-size: var(--text-sm);
+    line-height: 1.7;
+    color: var(--text-dim);
+  }
+
+  /* ---------- source ---------- */
+  .source { padding-block: var(--space-4); scroll-margin-top: 4rem; }
+
+  .source__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+
+  .source__title { font-size: var(--text-lg); margin-top: var(--space-1); }
+
+  .source__code {
+    max-height: 70svh;
+    overflow: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  /* Shiki writes its own background colour inline; ours is better. */
+  .source__code :global(pre) {
+    margin: 0;
+    padding: var(--space-3);
+    background: var(--ink) !important;
+    font-size: var(--text-xs);
+    line-height: 1.75;
+    tab-size: 2;
+  }
+
+  .source__code :global(code) { font-family: var(--font-mono); }
+
+  /* ---------- pager ---------- */
+  .pager {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-block: var(--space-4);
+    border-top: 1px solid var(--line);
+  }
+
+  .pager__link { display: flex; flex-direction: column; gap: 0.25rem; transition: color 0.3s var(--ease); }
+  .pager__link:hover { color: var(--accent); }
+  .pager__link--next { text-align: right; }
+  .pager__name { font-family: var(--font-display); font-size: var(--text-md); }
+</style>

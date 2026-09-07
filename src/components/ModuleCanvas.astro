@@ -1,0 +1,137 @@
+---
+/**
+ * A canvas that a 3D module gets mounted into.
+ *
+ * The element itself is inert markup. One shared script (below, bundled once
+ * per page no matter how many canvases there are) finds every [data-module] on
+ * the page and hands them to the mount manager, which decides which ones are
+ * allowed to be alive at any moment.
+ */
+const {
+  id,
+  height = '60svh',
+  accent = 'gold',
+  interactive = true,
+} = Astro.props;
+---
+
+<div class="stage" data-module={id} data-accent={accent} style={`--stage-height:${height}`}>
+  <canvas class="stage__canvas" data-interactive={interactive}></canvas>
+
+  <div class="stage__scan" aria-hidden="true"></div>
+
+  <p class="stage__state" aria-hidden="true">
+    <span class="stage__dot"></span><span class="stage__text"></span>
+  </p>
+
+  <noscript>
+    <p class="stage__noscript">{id} needs JavaScript and WebGL to run.</p>
+  </noscript>
+</div>
+
+<script>
+  import { createMountManager } from '../lib/mount-manager.js';
+  import { loadModule } from '../modules/index.js';
+  import { isTouch } from '../lib/device.js';
+
+  const elements = document.querySelectorAll('[data-module]');
+
+  if (elements.length > 0) {
+    // A browser will only hold a handful of live WebGL contexts. Phones get a
+    // smaller allowance because they also have less memory to spare.
+    const manager = createMountManager({
+      budget: isTouch() ? 3 : 6,
+      load: loadModule,
+    });
+
+    for (const element of elements) {
+      manager.observe(element, element.dataset.module);
+    }
+  }
+</script>
+
+<style>
+  .stage {
+    position: relative;
+    height: var(--stage-height, 60svh);
+    overflow: hidden;
+    background:
+      radial-gradient(130% 100% at 50% 0%, #0c101a 0%, var(--void) 70%);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    /* Let a finger scroll the page vertically, but still deliver pointer moves
+       to the canvas for the horizontal gesture the modules read. */
+    touch-action: pan-y;
+  }
+
+  .stage__canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* A faint CRT scan over everything, for texture. */
+  .stage__scan {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0 2px,
+      rgba(0, 0, 0, 0.35) 2px 3px
+    );
+    mix-blend-mode: multiply;
+  }
+
+  .stage__state {
+    position: absolute;
+    left: 0.75rem;
+    bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.55em;
+    margin: 0;
+    font-size: var(--text-xs);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    pointer-events: none;
+    transition: color 0.4s var(--ease);
+  }
+
+  .stage__dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .stage[data-state='idle']    .stage__text::after { content: 'standby'; }
+  .stage[data-state='loading'] .stage__text::after { content: 'loading'; }
+  .stage[data-state='live']    .stage__text::after { content: 'live'; }
+  .stage[data-state='error']   .stage__text::after { content: 'failed'; }
+
+  .stage[data-state='loading'] .stage__dot { animation: blink 1s steps(2) infinite; }
+
+  .stage[data-state='live'] .stage__state { color: var(--accent); }
+  .stage[data-state='live'] .stage__dot { animation: pulse 2.4s var(--ease) infinite; }
+
+  .stage[data-state='error'] .stage__state { color: var(--vermilion); }
+
+  @keyframes blink { 50% { opacity: 0.15; } }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 currentColor; }
+    50% { opacity: 0.6; box-shadow: 0 0 0 4px transparent; }
+  }
+
+  .stage__noscript {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: var(--space-3);
+    text-align: center;
+    color: var(--text-faint);
+    font-size: var(--text-sm);
+  }
+</style>

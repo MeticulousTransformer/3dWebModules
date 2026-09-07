@@ -1,0 +1,119 @@
+---
+import ModuleCanvas from './ModuleCanvas.astro';
+
+const { module, height = '14rem' } = Astro.props;
+---
+
+<article class="card corners reveal" data-accent={module.accent}>
+  <ModuleCanvas id={module.id} accent={module.accent} height={height} />
+
+  <div class="card__body">
+    <div class="card__head">
+      <h3 class="card__title display">
+        <a class="card__link" href={`/m/${module.id}`}>{module.title}</a>
+      </h3>
+      <span class="card__cost" data-cost={module.cost}>{module.cost}</span>
+    </div>
+
+    <p class="card__subtitle">{module.subtitle}</p>
+    <p class="card__blurb">{module.blurb}</p>
+
+    <ul class="card__tags">
+      {module.tags.map((tag) => <li class="card__tag">{tag}</li>)}
+    </ul>
+  </div>
+</article>
+
+<style>
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--ink) 80%, transparent), transparent);
+    transition: border-color 0.4s var(--ease), transform 0.4s var(--ease);
+  }
+
+  .card:hover { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+
+  /* The canvas sits above the stretched link so it stays interactive. */
+  .card :global(.stage) {
+    position: relative;
+    z-index: 2;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+  }
+
+  .card__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+
+  .card__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  .card__title {
+    font-size: var(--text-lg);
+    color: var(--text);
+  }
+
+  /* Stretched link: clicking anywhere on the card body opens the module. */
+  .card__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .card__link { transition: color 0.3s var(--ease); }
+  .card:hover .card__link { color: var(--accent); }
+
+  .card__cost {
+    flex: none;
+    font-size: var(--text-xs);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .card__cost[data-cost='light']  { color: var(--acid); }
+  .card__cost[data-cost='medium'] { color: var(--gold); }
+  .card__cost[data-cost='heavy']  { color: var(--vermilion); }
+
+  .card__subtitle {
+    font-size: var(--text-sm);
+    color: var(--accent);
+    opacity: 0.8;
+  }
+
+  .card__blurb {
+    font-size: var(--text-sm);
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: var(--space-1) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .card__tag {
+    padding: 0.15em 0.6em;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    color: var(--text-faint);
+  }
+</style>
