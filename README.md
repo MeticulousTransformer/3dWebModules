@@ -2,9 +2,9 @@
 
 A furnace for 3D web modules.
 
-Eighteen three.js pieces — alchemy, Georgian and Japanese sign, physics,
-chemistry, neon — each written as **one file you can pick up and drop
-somewhere else**. The website around them is an Astro static site that exists
+Twenty-four three.js pieces — alchemy, Georgian and Japanese sign, physics,
+chemistry, neon, and a wing of gothic stone — each written as **one file you
+can pick up and drop somewhere else**. The website around them is an Astro static site that exists
 mainly to show them running, let you tune them, and hand you the source.
 
 ```bash
@@ -73,6 +73,8 @@ src/
     mount-manager.js  which canvases on a page are allowed to be alive
     fullscreen.js     a quad that always covers the canvas, for shader-only work
     pingpong.js       two render targets that take turns — simulations on the GPU
+    lightshaft.js     the beam through a high window, faked with one quad
+    random.js         seeded randomness, so a rebuild gives back what you had
     glyphs.js         characters -> textures (atlas or strip)
     textures.js       procedural glows and environment maps
     glsl.js           shader snippets more than one module needs
@@ -117,7 +119,7 @@ This is not a claim, it is a handful of specific decisions:
   tab, zero frames are drawn.
 - **WebGL contexts are budgeted.** A browser only gives you eight to sixteen
   live contexts before it starts silently killing the oldest. The gallery has
-  twenty canvases, so `mount-manager.js` mounts modules as they scroll in and
+  twenty-six canvases, so `mount-manager.js` mounts modules as they scroll in and
   disposes them when they leave — three alive at a time on a phone, six on a
   desktop. Verified, not assumed.
 - **Filtering falls out of that for free.** Hiding a card takes it out of the
@@ -132,7 +134,7 @@ This is not a claim, it is a handful of specific decisions:
 - Astro ships **no JavaScript at all** until a canvas needs it, and three.js is
   split into its own chunk so it is downloaded once and cached for every module.
 
-### Two things about teardown, both learned the hard way
+### Three things learned the hard way
 
 `stage.dispose()` cancels the frame loop, disconnects both observers, removes
 its listeners, walks the scene releasing every geometry, material and texture,
@@ -147,6 +149,14 @@ thing `mount()` does, with the slot already settled, because a listener is
 allowed to turn round and ask for a rebuild — and if it did that mid-mount, the
 rebuild and the mount would fight over the same slot and leave two modules on
 one canvas. That is exactly what a link with parameters in it does on load.
+
+**`[hidden]` loses to any author rule that sets `display`.** The browser's own
+`[hidden] { display: none }` is a UA style, so `.card { display: flex }` beats
+it and `element.hidden = true` does nothing you can see. The gallery filter
+looked like it worked for a while, because the property was being set correctly
+and the property was all the test looked at. `base.css` now carries an explicit
+`[hidden] { display: none !important }`, and the test counts what actually has
+a layout box.
 
 ---
 
@@ -203,6 +213,12 @@ two things.
 | Grapevine Cross | the Georgian cross whose arms droop, bound at the middle | light |
 | Reaction Diffusion | Turing's two chemicals, run on the GPU. touch it to seed more | heavy |
 | Ouroboros | a tapering serpent built by carrying a frame along its own spine | medium |
+| Cathedral Nave | an endless gothic nave, arches set out the way a mason sets them | medium |
+| Rose Window | a cathedral rose, all its glass in one buffer, lit in a wave | light |
+| Blood Moon | a generated skyline in three parallax layers under a red moon | medium |
+| Ashen Ember | a fire in a ring of stones, and nothing else | medium |
+| Iron Chandelier | a wrought corona on a chain, real pendulum physics on two axes | light |
+| The Tolling | a bell and a clapper on two pendulums; the rhythm is the difference | light |
 
 ---
 

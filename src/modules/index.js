@@ -329,6 +329,109 @@ export const MODULES = [
       { key: 'thickness', label: 'girth', min: 0.03, max: 0.24, step: 0.005, live: true },
     ],
   },
+
+  // ---- third furnace load: gothic -----------------------------------------
+
+  {
+    id: 'cathedral-nave',
+    title: 'Cathedral Nave',
+    subtitle: 'no length',
+    accent: 'moon',
+    cost: 'medium',
+    tags: ['gothic', 'cathedral', 'architecture', 'instancing'],
+    blurb:
+      'Bays of piers, transverse arches and crossing ribs come out of the fog and are sent back to the far end when they pass, so the church never ends. Light falls in sideways from the clerestory.',
+    teaches: 'setting out an equilateral arch the way a mason does, instanced architecture, fake volumetric shafts',
+    controls: [
+      { key: 'walk', label: 'walk', min: 0, max: 8, step: 0.1, live: true },
+      { key: 'lookUp', label: 'look up', min: -0.4, max: 1.2, step: 0.02, live: true },
+      { key: 'naveWidth', label: 'span', min: 1.6, max: 5, step: 0.1 },
+      { key: 'bayDepth', label: 'bay depth', min: 1.6, max: 7, step: 0.1 },
+    ],
+  },
+  {
+    id: 'rose-window',
+    title: 'Rose Window',
+    subtitle: 'pot metal',
+    accent: 'blood',
+    cost: 'light',
+    tags: ['gothic', 'cathedral', 'glass', 'symmetry'],
+    blurb:
+      'A cathedral rose generated from a table of rings. All the glass is one geometry with the colour in an attribute, so the sun can swing round behind it and light the panels in a wave without touching a material.',
+    teaches: 'packing hundreds of flat pieces into one buffer, per-panel attributes, angular glare',
+    controls: [
+      { key: 'sunSpeed', label: 'sun', min: -1.5, max: 1.5, step: 0.02, live: true },
+      { key: 'glow', label: 'glow', min: 0.2, max: 2.4, step: 0.05, live: true },
+      { key: 'turn', label: 'turn', min: -0.3, max: 0.3, step: 0.004, live: true },
+    ],
+  },
+  {
+    id: 'blood-moon',
+    title: 'Blood Moon',
+    subtitle: 'the long night',
+    accent: 'blood',
+    cost: 'medium',
+    tags: ['gothic', 'moon', 'parallax', 'skyline'],
+    blurb:
+      'A city of spires against a moon too large to be reassuring. The skyline is generated — up a wall, over a roof or up to a point, next building — and three copies at three distances drift at three speeds.',
+    teaches: 'a flat disc faking a sphere in the fragment shader, generated skylines, parallax depth',
+    controls: [
+      { key: 'drift', label: 'drift', min: 0, max: 5, step: 0.05, live: true },
+      { key: 'haze', label: 'haze', min: 0, max: 1.6, step: 0.02, live: true },
+      { key: 'moonSize', label: 'moon', min: 1, max: 7, step: 0.1 },
+      { key: 'seed', label: 'city seed', min: 1, max: 60, step: 1 },
+    ],
+  },
+  {
+    id: 'ashen-ember',
+    title: 'Ashen Ember',
+    subtitle: 'the only warm thing',
+    accent: 'amber',
+    cost: 'medium',
+    tags: ['gothic', 'fire', 'particles', 'light'],
+    blurb:
+      'A small fire in a ring of stones and nothing else. Embers go up, ash comes down, and one light that never sits still does all the work of making stone look like stone.',
+    teaches: 'flame as three noise quads out of phase, spark lifecycles, firelight flicker that reads as fire',
+    controls: [
+      { key: 'fire', label: 'fire', min: 0.2, max: 2.4, step: 0.05, live: true },
+      { key: 'updraught', label: 'updraught', min: 0, max: 4, step: 0.05, live: true },
+      { key: 'embers', label: 'embers', min: 40, max: 1200, step: 20, value: 460 },
+    ],
+  },
+  {
+    id: 'iron-chandelier',
+    title: 'Iron Chandelier',
+    subtitle: 'twenty-two flames',
+    accent: 'amber',
+    cost: 'light',
+    tags: ['gothic', 'iron', 'physics', 'candles'],
+    blurb:
+      'A wrought-iron corona on a chain, swinging on real pendulum physics on two axes. Push it with a finger and it takes a while to settle, the way something that heavy would.',
+    teaches: 'the pendulum equation, three real lights standing in for twenty-two, per-instance flicker',
+    controls: [
+      { key: 'swing', label: 'draught', min: 0, max: 5, step: 0.05, live: true },
+      { key: 'damping', label: 'damping', min: 0.02, max: 1.5, step: 0.02, live: true },
+      { key: 'candleGlow', label: 'candles', min: 0.2, max: 2.5, step: 0.05, live: true },
+      { key: 'chainLength', label: 'chain', min: 1, max: 5, step: 0.1 },
+    ],
+  },
+  {
+    id: 'the-tolling',
+    title: 'The Tolling',
+    subtitle: 'nobody schedules it',
+    accent: 'ash',
+    cost: 'light',
+    tags: ['gothic', 'physics', 'bronze', 'sound'],
+    blurb:
+      'A bronze bell and a clapper on two pendulums of different lengths. They drift out of phase, the clapper catches up, and it strikes. Nothing schedules the rhythm — it falls out of the two lengths.',
+    teaches: 'lathe profiles, coupled pendulums, collision as a phase condition, pooled shockwaves',
+    controls: [
+      { key: 'push', label: 'ringer', min: 0, max: 4, step: 0.05, live: true },
+      { key: 'damping', label: 'damping', min: 0.02, max: 1, step: 0.02, live: true },
+      { key: 'strikeAngle', label: 'reach', min: 0.08, max: 0.7, step: 0.01, live: true },
+      { key: 'clapperLength', label: 'clapper', min: 0.25, max: 1.0, step: 0.01 },
+    ],
+  },
 ];
 
 export const MODULE_IDS = MODULES.map((module) => module.id);
@@ -345,6 +448,7 @@ export const FAMILIES = [
   { id: 'occult', label: 'occult', tags: ['occult', 'hermeticism', 'kabbalah', 'alchemy', 'ancient gods', 'ritual', 'christian'] },
   { id: 'physics', label: 'physics', tags: ['physics', 'chemistry', 'emergence', 'growth', 'turing', 'sound', 'orbits'] },
   { id: 'shaders', label: 'shaders', tags: ['shader', 'gpgpu', 'fractal', 'kaleidoscope'] },
+  { id: 'gothic', label: 'gothic', tags: ['gothic', 'cathedral', 'fire', 'iron', 'moon', 'bronze'] },
   { id: 'tech', label: 'tech', tags: ['matrix', 'cyberpunk', 'instancing', 'infinite', 'grid'] },
 ];
 

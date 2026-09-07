@@ -20,6 +20,16 @@
   --vermilion: #ff3b52;
   --bone: #e8e4d9;
 
+  /* The gothic set. Stone, iron, candle, moon. */
+  --pitch: #04040a;
+  --slate: #14161d;
+  --ash: #6e6a63;
+  --blood: #a01828;
+  --rust: #8a4a24;
+  --amber: #ff9c3a;
+  --moon: #9fb6d8;
+  --glass: #2a5a9e;
+
   --text: var(--bone);
   --text-dim: #918d85;
   --text-faint: #5c5851;
@@ -72,3 +82,7 @@
 [data-accent='gold']      { --accent: var(--gold); }
 [data-accent='vermilion'] { --accent: var(--vermilion); }
 [data-accent='bone']      { --accent: var(--bone); }
+[data-accent='blood']     { --accent: #d4384c; }
+[data-accent='amber']     { --accent: var(--amber); }
+[data-accent='moon']      { --accent: var(--moon); }
+[data-accent='ash']       { --accent: #a49f96; }

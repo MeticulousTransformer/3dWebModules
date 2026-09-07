@@ -36,6 +36,11 @@ body {
 
 img, canvas, svg, video { display: block; max-width: 100%; }
 
+/* The browser's own rule for [hidden] is display:none, but it loses to any
+   author rule that sets display — and almost every component here sets one.
+   Without this, hiding a card with element.hidden = true does nothing at all. */
+[hidden] { display: none !important; }
+
 a { color: inherit; text-decoration: none; }
 
 button, input, textarea { font: inherit; color: inherit; }

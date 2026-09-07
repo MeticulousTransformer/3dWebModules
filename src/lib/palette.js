@@ -1,8 +1,12 @@
 /**
  * palette.js — the colours of the whole thing, in one place.
  *
+ * Two groups. PALETTE is the neon set the first modules were built on. GOTHIC
+ * is colder and dirtier — everything in it is lit by fire, moonlight or
+ * stained glass, and nothing in it glows on its own.
+ *
  * Numbers (0x…) are for three.js. The matching CSS custom properties live in
- * src/styles/tokens.css and are kept in sync by hand — there are only a dozen.
+ * src/styles/tokens.css and are kept in sync by hand — there are only a few.
  */
 export const PALETTE = {
   void:      0x05060a, // deepest background
@@ -17,7 +21,28 @@ export const PALETTE = {
   bone:      0xe8e4d9, // text, chalk lines
 };
 
+/** The gothic set: stone, iron, candle, moon. */
+export const GOTHIC = {
+  pitch: 0x04040a, // darker than void — nothing behind this
+  slate: 0x14161d, // wet stone in shadow
+  ash:   0x6e6a63, // dust, old mortar
+  bone:  0xd8d2c4, // weathered stone in light
+  blood: 0xa01828, // the moon, the glass, the rust that was not rust
+  rust:  0x8a4a24, // iron that has been outside a long time
+  amber: 0xff9c3a, // candle, ember, the only warm thing
+  moon:  0x9fb6d8, // cold light through a high window
+  glass: 0x2a5a9e, // stained glass blue
+};
+
 /** Same values as CSS strings, for canvas2d work and inline styles. */
 export const CSS_PALETTE = Object.fromEntries(
-  Object.entries(PALETTE).map(([name, value]) => [name, '#' + value.toString(16).padStart(6, '0')]),
+  Object.entries(PALETTE).map(([name, value]) => [name, toCss(value)]),
 );
+
+export const CSS_GOTHIC = Object.fromEntries(
+  Object.entries(GOTHIC).map(([name, value]) => [name, toCss(value)]),
+);
+
+function toCss(value) {
+  return '#' + value.toString(16).padStart(6, '0');
+}

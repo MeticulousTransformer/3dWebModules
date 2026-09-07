@@ -121,6 +121,24 @@ const tuning = [
     </div>
   </section>
 
+  <!-- ================= second feature band ================= -->
+  <section class="feature feature--flip reveal" data-accent="moon">
+    <div class="feature__copy">
+      <p class="label label--accent">and lately</p>
+      <h2 class="feature__title display">Cathedral Nave</h2>
+      <p class="prose">
+        Bays of piers, transverse arches and crossing ribs coming out of the fog. The arch
+        is set out the way a mason sets one — two arcs of the same radius, each centred on
+        the opposite springing point — so the apex lands where it should and you never have
+        to guess at it.
+      </p>
+      <a class="button" href="/m/cathedral-nave">read the source</a>
+    </div>
+    <div class="feature__canvas">
+      <ModuleCanvas id="cathedral-nave" accent="moon" height="100%" />
+    </div>
+  </section>
+
   <!-- ================= the grid ================= -->
   <section class="modules page" id="modules">
     <header class="modules__head reveal">
@@ -374,8 +392,14 @@ wheel.dispose();`}</code></pre>
 
   @media (min-width: 56em) {
     .feature { grid-template-columns: 1.2fr 1fr; }
+    .feature--flip { grid-template-columns: 1fr 1.2fr; }
     .feature__canvas { min-height: 70svh; }
     .feature__copy { padding-inline: var(--space-5); }
+  }
+
+  /* On a phone the canvas always comes first, whichever way round it is wide. */
+  @media (max-width: 55.99em) {
+    .feature--flip .feature__canvas { order: -1; }
   }
 
   /* ---------- grid ---------- */
