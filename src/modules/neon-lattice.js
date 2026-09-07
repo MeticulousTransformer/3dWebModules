@@ -18,6 +18,7 @@ import { createPointer } from '../lib/pointer.js';
 import { createRadialGlowTexture } from '../lib/textures.js';
 import { scale } from '../lib/device.js';
 import { PALETTE, CSS_PALETTE } from '../lib/palette.js';
+import { createParamSetter } from '../lib/params.js';
 
 export const defaults = {
   towerCount: 0,     // 0 = pick from the device
@@ -205,6 +206,8 @@ export default function create(canvas, options = {}) {
     boxMaterial.dispose();
     glowTexture.dispose();
   });
+
+  stage.setParam = createParamSetter(params);
 
   return stage.start();
 }

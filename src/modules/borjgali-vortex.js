@@ -12,6 +12,7 @@ import { createStage } from '../lib/stage.js';
 import { createPointer } from '../lib/pointer.js';
 import { createGradientEnvironment, createRadialGlowTexture } from '../lib/textures.js';
 import { PALETTE } from '../lib/palette.js';
+import { createParamSetter } from '../lib/params.js';
 
 export const defaults = {
   arms: 7,        // seven, always seven
@@ -104,8 +105,9 @@ export default function create(canvas, options = {}) {
     wheel.position.z = -layer * 1.35;
     wheel.scale.setScalar(1 - depth * 0.28);
     wheel.rotation.z = layer * 0.4;
-    // Alternate direction so the layers shear against each other.
-    wheel.userData.speed = params.spin * (layer % 2 === 0 ? 1 : -0.62) * (1 - depth * 0.35);
+    // Alternate direction so the layers shear against each other. Only the
+    // direction is baked in — the speed is read live, so it can be tuned.
+    wheel.userData.direction = (layer % 2 === 0 ? 1 : -0.62) * (1 - depth * 0.35);
 
     wheels.push(wheel);
     stage.scene.add(wheel);
@@ -156,7 +158,7 @@ export default function create(canvas, options = {}) {
     pointer.update(dt);
 
     for (const wheel of wheels) {
-      wheel.rotation.z += wheel.userData.speed * dt;
+      wheel.rotation.z += wheel.userData.direction * params.spin * dt;
       wheel.rotation.x = pointer.y * params.tilt;
       wheel.rotation.y = pointer.x * params.tilt;
     }
@@ -180,6 +182,8 @@ export default function create(canvas, options = {}) {
     armGeometry.dispose();
     for (const material of materials) material.dispose();
   });
+
+  stage.setParam = createParamSetter(params);
 
   return stage.start();
 }

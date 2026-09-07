@@ -12,6 +12,7 @@ import * as THREE from 'three';
 import { createStage } from '../lib/stage.js';
 import { GLSL_HASH } from '../lib/glsl.js';
 import { PALETTE } from '../lib/palette.js';
+import { createParamSetter } from '../lib/params.js';
 
 export const defaults = {
   radius: 1.12,
@@ -203,12 +204,13 @@ export default function create(canvas, options = {}) {
   });
 
   // ---- the breath cycle ---------------------------------------------------
-  const cycleLength = params.drawSeconds + params.holdSeconds + params.fadeSeconds;
   let cycle = -1;
 
   paint(1.234);
 
   stage.onFrame(({ time, dt }) => {
+    // Read every frame, so the timings can be tuned live.
+    const cycleLength = params.drawSeconds + params.holdSeconds + params.fadeSeconds;
     const currentCycle = Math.floor(time / cycleLength);
     if (currentCycle !== cycle) {
       cycle = currentCycle;
@@ -245,6 +247,8 @@ export default function create(canvas, options = {}) {
     sealMaterial.dispose();
     dustGeometry.dispose();
   });
+
+  stage.setParam = createParamSetter(params);
 
   return stage.start();
 }

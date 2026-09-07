@@ -14,6 +14,7 @@ import { createStage } from '../lib/stage.js';
 import { createPointer } from '../lib/pointer.js';
 import { scale } from '../lib/device.js';
 import { PALETTE } from '../lib/palette.js';
+import { createParamSetter } from '../lib/params.js';
 
 export const defaults = {
   count: 0,          // 0 = pick from the device
@@ -215,6 +216,8 @@ export default function create(canvas, options = {}) {
     markerGeometry.dispose();
     markerMaterial.dispose();
   });
+
+  stage.setParam = createParamSetter(params);
 
   return stage.start();
 }

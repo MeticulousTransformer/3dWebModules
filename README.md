@@ -2,10 +2,10 @@
 
 A furnace for 3D web modules.
 
-Twelve three.js pieces — alchemy, Georgian and Japanese sign, physics, neon —
-each written as **one file you can pick up and drop somewhere else**. The
-website around them is an Astro static site that exists mainly to show them
-running and hand you the source.
+Eighteen three.js pieces — alchemy, Georgian and Japanese sign, physics,
+chemistry, neon — each written as **one file you can pick up and drop
+somewhere else**. The website around them is an Astro static site that exists
+mainly to show them running, let you tune them, and hand you the source.
 
 ```bash
 npm install
@@ -24,12 +24,11 @@ import create from './src/modules/borjgali-vortex.js';
 
 const wheel = create(document.querySelector('canvas'), { arms: 7, spin: 0.5 });
 
-// when the component unmounts, the route changes, whatever
-wheel.dispose();
+wheel.setParam('spin', 1.2);   // change it while it runs
+wheel.dispose();               // and hand the GPU memory back
 ```
 
-`start()`, `stop()` and `dispose()` are the entire API. A couple of modules add
-one `setParam(key, value)`.
+`start()`, `stop()`, `dispose()` and `setParam(key, value)` are the entire API.
 
 No module imports anything from this website. Not the layout, not the config,
 not a store, not a context. They import `three` and two or three small helpers
@@ -48,6 +47,20 @@ That is it. There are no assets to bring: every texture in this project is
 drawn with canvas2d at runtime, so there is no `public/` folder to keep in sync
 and nothing to 404.
 
+### You do not have to guess the numbers
+
+Every module's page has sliders for its own parameters, generated from the
+catalogue. Drag them, watch it change, then press **copy config** — what comes
+back is the exact call that makes what you are looking at:
+
+```js
+create(canvas, {"undulation":0.31,"waves":5,"glide":-0.85})
+```
+
+The settings also go into the URL, so a tuned module is a link you can send
+someone. Parameters marked *live* go straight to `setParam` and change under
+your hand; the rest rebuild the module, which takes a blink.
+
 ---
 
 ## Reading the code
@@ -59,17 +72,19 @@ src/
     pointer.js        mouse, finger and phone tilt, normalised to -1..1
     mount-manager.js  which canvases on a page are allowed to be alive
     fullscreen.js     a quad that always covers the canvas, for shader-only work
+    pingpong.js       two render targets that take turns — simulations on the GPU
     glyphs.js         characters -> textures (atlas or strip)
     textures.js       procedural glows and environment maps
     glsl.js           shader snippets more than one module needs
+    params.js         the setParam convention, in five lines
     device.js         one honest guess at how much this machine can take
     palette.js        the nine colours, for three.js
 
   modules/            the actual work. one file each.
     index.js          the catalogue — the only file that knows they all exist
-    sources.js        build-time only: module source as text, for the site
+    sources.js        build-time only: module source as text, and their defaults
 
-  components/         Astro pieces
+  components/         Astro pieces, including the generated control panel
   layouts/            the page shell
   pages/              / and /m/[id]
   styles/             tokens.css (every value) and base.css (the reset)
@@ -85,7 +100,9 @@ thing every module sits on.
   of registries. If you can read one module you can read all of them.
 - **Comments say why, not what.** The line underneath already says what.
 - **One place per value.** Colours live in `tokens.css` and `palette.js`, sizes
-  live in `tokens.css`, the module list lives in `modules/index.js`.
+  live in `tokens.css`, the module list lives in `modules/index.js`, and a
+  module's default settings live in the module — the sliders read them from
+  there rather than keeping a second copy that drifts.
 - **Nothing clever.** Where there was a choice between short and obvious, the
   code is obvious.
 
@@ -100,9 +117,12 @@ This is not a claim, it is a handful of specific decisions:
   tab, zero frames are drawn.
 - **WebGL contexts are budgeted.** A browser only gives you eight to sixteen
   live contexts before it starts silently killing the oldest. The gallery has
-  fourteen canvases, so `mount-manager.js` mounts modules as they scroll in and
+  twenty canvases, so `mount-manager.js` mounts modules as they scroll in and
   disposes them when they leave — three alive at a time on a phone, six on a
   desktop. Verified, not assumed.
+- **Filtering falls out of that for free.** Hiding a card takes it out of the
+  viewport, so its module disposes itself and hands the context to whatever is
+  still on screen. No special case anywhere.
 - **Pixel ratio is capped**, and the expensive shader modules cap it lower again.
 - **Particle counts and geometry detail come from `device.js`**, so a phone gets
   2,600 particles where a desktop gets 7,000.
@@ -112,16 +132,21 @@ This is not a claim, it is a handful of specific decisions:
 - Astro ships **no JavaScript at all** until a canvas needs it, and three.js is
   split into its own chunk so it is downloaded once and cached for every module.
 
-### Disposal actually disposes
+### Two things about teardown, both learned the hard way
 
 `stage.dispose()` cancels the frame loop, disconnects both observers, removes
 its listeners, walks the scene releasing every geometry, material and texture,
 and then calls `forceContextLoss()` to hand the GL context straight back.
 
-One consequence worth knowing, because it cost an hour: **a canvas whose context
-has been force-lost can never get another one.** `getContext()` returns null
-from then on. That is why `mount-manager.js` throws the old `<canvas>` element
-away and puts a fresh one in its place on unmount.
+**A canvas whose context has been force-lost can never get another one.**
+`getContext()` returns null from then on. That is why `mount-manager.js` throws
+the old `<canvas>` element away and puts a fresh one in its place on unmount.
+
+**Mounting has to be re-entrancy safe.** The `module:mounted` event is the last
+thing `mount()` does, with the slot already settled, because a listener is
+allowed to turn round and ask for a rebuild — and if it did that mid-mount, the
+rebuild and the mount would fight over the same slot and leave two modules on
+one canvas. That is exactly what a link with parameters in it does on load.
 
 ---
 
@@ -142,14 +167,17 @@ away and puts a fresh one in its place on unmount.
      stage.onFrame(({ time, dt }) => { /* move it */ });
      stage.onDispose(() => { /* release anything stage cannot find */ });
 
+     stage.setParam = createParamSetter(params);
      return stage.start();
    }
    ```
 
-2. Add an entry to the `MODULES` array in `src/modules/index.js`.
+2. Add an entry to the `MODULES` array in `src/modules/index.js`, including a
+   `controls` list of the parameters worth a slider.
 
-That is both steps. The gallery card, the detail page, the file list and the
-syntax-highlighted source panel are all generated from those two things.
+That is both steps. The gallery card, the detail page, the file list, the
+sliders and the syntax-highlighted source panel are all generated from those
+two things.
 
 ---
 
@@ -169,6 +197,12 @@ syntax-highlighted source panel are all generated from those two things.
 | Gravity Well | real n-body gravity, symplectic integration, your finger is a mass | medium |
 | Chladni Plate | sand on a vibrating plate, settling on the nodal lines | medium |
 | Sigil Forge | chaos magic's letter method — type a sentence, get its sigil | light |
+| Torii Path | a thousand gates at Fushimi Inari, looped, over a seigaiha sea | medium |
+| Sand Mandala | laid down grain by grain, held, swept away, begun again | medium |
+| Tree of Life | the ten sephirot and twenty-two paths, as an actual graph | light |
+| Grapevine Cross | the Georgian cross whose arms droop, bound at the middle | light |
+| Reaction Diffusion | Turing's two chemicals, run on the GPU. touch it to seed more | heavy |
+| Ouroboros | a tapering serpent built by carrying a frame along its own spine | medium |
 
 ---
 

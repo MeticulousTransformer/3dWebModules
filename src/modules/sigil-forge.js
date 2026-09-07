@@ -19,6 +19,7 @@ import { createPointer } from '../lib/pointer.js';
 import { createGlyphStrip } from '../lib/glyphs.js';
 import { createRadialGlowTexture } from '../lib/textures.js';
 import { PALETTE, CSS_PALETTE } from '../lib/palette.js';
+import { createParamSetter } from '../lib/params.js';
 
 export const defaults = {
   phrase: 'AS ABOVE SO BELOW',
@@ -140,12 +141,13 @@ export default function create(canvas, options = {}) {
   stage.scene.add(glow);
 
   // ---- animation ----------------------------------------------------------
-  const cycleLength = params.drawSeconds + params.holdSeconds;
   let phaseOffset = 0; // reset on every re-forge, so a new sigil draws from zero
 
   stage.onFrame(({ time, dt }) => {
     pointer.update(dt);
 
+    // Read every frame, so the timings can be tuned live.
+    const cycleLength = params.drawSeconds + params.holdSeconds;
     const local = (time - phaseOffset) % cycleLength;
 
     if (local < params.drawSeconds) {
@@ -181,13 +183,12 @@ export default function create(canvas, options = {}) {
     glowTexture.dispose();
   });
 
-  /** The one knob this module exposes. */
-  stage.setParam = (key, value) => {
-    if (key !== 'phrase') return;
-    params.phrase = value;
-    forgeSigil(value);
-    phaseOffset = stage.state.time; // start the drawing animation over
-  };
+  stage.setParam = createParamSetter(params, {
+    phrase: (value) => {
+      forgeSigil(value);
+      phaseOffset = stage.state.time; // start the drawing animation over
+    },
+  });
 
   return stage.start();
 }

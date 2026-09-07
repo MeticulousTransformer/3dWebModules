@@ -1,10 +1,12 @@
 ---
 import ModuleCanvas from './ModuleCanvas.astro';
+import { familiesFor } from '../modules/index.js';
 
 const { module, height = '14rem' } = Astro.props;
+const families = familiesFor(module).join(' ');
 ---
 
-<article class="card corners reveal" data-accent={module.accent}>
+<article class="card corners reveal" data-accent={module.accent} data-families={families}>
   <ModuleCanvas id={module.id} accent={module.accent} height={height} />
 
   <div class="card__body">

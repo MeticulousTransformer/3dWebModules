@@ -17,6 +17,7 @@ import { createPointer } from '../lib/pointer.js';
 import { createGlyphStrip, GLYPH_SETS } from '../lib/glyphs.js';
 import { createRadialGlowTexture } from '../lib/textures.js';
 import { PALETTE, CSS_PALETTE } from '../lib/palette.js';
+import { createParamSetter } from '../lib/params.js';
 
 export const defaults = {
   spin: 1,      // multiplies every rotation speed
@@ -180,6 +181,8 @@ export default function create(canvas, options = {}) {
     innerStrip.dispose();
     glowTexture.dispose();
   });
+
+  stage.setParam = createParamSetter(params);
 
   return stage.start();
 }

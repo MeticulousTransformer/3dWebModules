@@ -17,6 +17,7 @@ import { createFullscreenQuad } from '../lib/fullscreen.js';
 import { GLSL_NOISE, GLSL_FBM, GLSL_ROTATE } from '../lib/glsl.js';
 import { scale } from '../lib/device.js';
 import { PALETTE } from '../lib/palette.js';
+import { createParamSetter } from '../lib/params.js';
 
 export const defaults = {
   sectors: 6,      // kaleidoscope mirrors. 1 turns it off.
@@ -135,6 +136,13 @@ export default function create(canvas, options = {}) {
   stage.onDispose(() => {
     pointer.dispose();
     quad.dispose();
+  });
+
+  stage.setParam = createParamSetter(params, {
+    sectors: (value) => { uniforms.uSectors.value = value; },
+    zoom: (value) => { uniforms.uZoom.value = value; },
+    speed: (value) => { uniforms.uSpeed.value = value; },
+    octaves: (value) => { uniforms.uOctaves.value = value; },
   });
 
   return stage.start();

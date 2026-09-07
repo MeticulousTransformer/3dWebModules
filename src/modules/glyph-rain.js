@@ -15,6 +15,7 @@ import { createFullscreenQuad } from '../lib/fullscreen.js';
 import { createGlyphAtlas, ALL_GLYPHS } from '../lib/glyphs.js';
 import { GLSL_HASH } from '../lib/glsl.js';
 import { PALETTE } from '../lib/palette.js';
+import { createParamSetter } from '../lib/params.js';
 import { scale } from '../lib/device.js';
 
 export const defaults = {
@@ -132,6 +133,10 @@ export default function create(canvas, options = {}) {
     pointer.dispose();
     atlas.dispose();
     quad.dispose();
+  });
+
+  stage.setParam = createParamSetter(params, {
+    speed: (value) => { uniforms.uSpeed.value = value; },
   });
 
   return stage.start();

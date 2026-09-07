@@ -46,6 +46,13 @@ const {
 
     for (const element of elements) {
       manager.observe(element, element.dataset.module);
+
+      // The control panel, if there is one, talks to the manager through this
+      // event rather than reaching into it. Two scripts, one seam.
+      element.addEventListener('module:options', (event) => {
+        const { options, rebuild = true } = event.detail;
+        manager.setOptions(element, options, { rebuild });
+      });
     }
   }
 </script>

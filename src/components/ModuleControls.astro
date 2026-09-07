@@ -1,0 +1,287 @@
+---
+/**
+ * Sliders for a module, generated from its entry in the catalogue.
+ *
+ * Two kinds of parameter. A "live" one goes straight to the running module's
+ * setParam and changes under your hand. Everything else needs the module built
+ * again, which the mount manager does when it hears a module:options event.
+ *
+ * Whatever you end up with is written into the URL, so a tuned module is a
+ * link, and printed as a call you can paste into your own project.
+ */
+import { resolveControls } from '../modules/sources.js';
+
+const { module } = Astro.props;
+const controls = resolveControls(module);
+const startingValues = Object.fromEntries(controls.map((control) => [control.key, control.value]));
+---
+
+{controls.length > 0 && (
+  <section class="controls page" data-accent={module.accent}>
+    <div class="controls__head">
+      <div>
+        <p class="label label--accent">live parameters</p>
+        <p class="controls__hint">
+          Anything marked <em class="tag-live">live</em> changes while it runs. The rest
+          rebuild the module, which takes a blink.
+        </p>
+      </div>
+      <div class="controls__actions">
+        <button class="button" type="button" data-reset>reset</button>
+        <button class="button" type="button" data-copy-config>copy config</button>
+      </div>
+    </div>
+
+    <div class="controls__grid" data-controls data-defaults={JSON.stringify(startingValues)}>
+      {controls.map((control) => (
+        <label class="control">
+          <span class="control__row">
+            <span class="control__name">
+              {control.label}
+              {control.live && <em class="tag-live">live</em>}
+            </span>
+            {control.type === 'range' && (
+              <output class="control__value" data-output={control.key}>{control.value}</output>
+            )}
+          </span>
+
+          {control.type === 'text' ? (
+            <input
+              class="control__text"
+              type="text"
+              data-param={control.key}
+              data-live={control.live ? 'yes' : undefined}
+              value={control.value}
+              maxlength="60"
+              autocomplete="off"
+              spellcheck="false"
+            />
+          ) : (
+            <input
+              class="control__range"
+              type="range"
+              data-param={control.key}
+              data-live={control.live ? 'yes' : undefined}
+              min={control.min}
+              max={control.max}
+              step={control.step}
+              value={control.value}
+            />
+          )}
+        </label>
+      ))}
+    </div>
+
+    <pre class="controls__snippet" data-snippet>create(canvas)</pre>
+  </section>
+)}
+
+<script>
+  const panel = document.querySelector('[data-controls]');
+  const stageElement = document.querySelector('[data-module]');
+
+  if (panel && stageElement) {
+    const defaults = JSON.parse(panel.dataset.defaults);
+    const current = { ...defaults };
+    const snippet = document.querySelector('[data-snippet]');
+
+    let liveModule = null;
+    let rebuildTimer = 0;
+
+    stageElement.addEventListener('module:mounted', (event) => { liveModule = event.detail.instance; });
+    stageElement.addEventListener('module:unmounted', () => { liveModule = null; });
+
+    // ---- a tuned link reopens tuned ---------------------------------------
+    for (const [key, raw] of new URLSearchParams(location.search)) {
+      if (!(key in current)) continue;
+      current[key] = typeof defaults[key] === 'number' ? Number(raw) : raw;
+    }
+
+    const format = (value) =>
+      typeof value === 'number' ? String(Math.round(value * 10000) / 10000) : String(value);
+
+    /** Only what differs from the module's own defaults. */
+    const changes = () =>
+      Object.fromEntries(Object.entries(current).filter(([key, value]) => value !== defaults[key]));
+
+    function paintInputs() {
+      for (const input of panel.querySelectorAll('[data-param]')) {
+        const key = input.dataset.param;
+        input.value = current[key];
+        const output = panel.querySelector(`[data-output="${key}"]`);
+        if (output) output.textContent = format(current[key]);
+      }
+    }
+
+    function paintSnippet() {
+      const diff = changes();
+      snippet.textContent = Object.keys(diff).length
+        ? `create(canvas, ${JSON.stringify(diff)})`
+        : 'create(canvas)';
+    }
+
+    function paintUrl() {
+      const url = new URL(location.href);
+      url.search = '';
+      for (const [key, value] of Object.entries(changes())) url.searchParams.set(key, value);
+      history.replaceState(null, '', url);
+    }
+
+    function send(rebuild) {
+      stageElement.dispatchEvent(
+        new CustomEvent('module:options', { detail: { options: { ...current }, rebuild } }),
+      );
+    }
+
+    function scheduleRebuild() {
+      clearTimeout(rebuildTimer);
+      rebuildTimer = setTimeout(() => send(true), 180);
+    }
+
+    panel.addEventListener('input', (event) => {
+      const input = event.target.closest('[data-param]');
+      if (!input) return;
+
+      const key = input.dataset.param;
+      const value = input.type === 'range' ? Number(input.value) : input.value;
+      current[key] = value;
+
+      const output = panel.querySelector(`[data-output="${key}"]`);
+      if (output) output.textContent = format(value);
+
+      if (input.dataset.live) {
+        if (liveModule && liveModule.setParam) liveModule.setParam(key, value);
+        send(false); // remember it, but do not rebuild
+      } else {
+        scheduleRebuild();
+      }
+
+      paintSnippet();
+      paintUrl();
+    });
+
+    document.querySelector('[data-reset]')?.addEventListener('click', () => {
+      Object.assign(current, defaults);
+      paintInputs();
+      paintSnippet();
+      paintUrl();
+      send(true);
+    });
+
+    document.querySelector('[data-copy-config]')?.addEventListener('click', async (event) => {
+      const button = event.currentTarget;
+      try {
+        await navigator.clipboard.writeText(snippet.textContent ?? '');
+        button.textContent = 'copied';
+      } catch {
+        button.textContent = 'select it';
+      }
+      setTimeout(() => { button.textContent = 'copy config'; }, 2000);
+    });
+
+    paintInputs();
+    paintSnippet();
+
+    // If the link carried settings, push them in as soon as the module is up.
+    if (Object.keys(changes()).length > 0) {
+      stageElement.addEventListener('module:mounted', () => send(true), { once: true });
+    }
+  }
+</script>
+
+<style>
+  .controls {
+    padding-block: var(--space-4);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .controls__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+  }
+
+  .controls__hint { font-size: var(--text-sm); color: var(--text-faint); }
+
+  .controls__actions { display: flex; gap: var(--space-2); }
+
+  @media (min-width: 44em) {
+    .controls__head { flex-direction: row; align-items: flex-end; justify-content: space-between; }
+  }
+
+  .controls__grid {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 44em) {
+    .controls__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3) var(--space-4); }
+  }
+
+  .control { display: flex; flex-direction: column; gap: 0.35rem; }
+
+  .control__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  .control__name {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    font-size: var(--text-xs);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .tag-live {
+    font-size: 0.85em;
+    font-style: normal;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    opacity: 0.85;
+  }
+
+  .control__value {
+    font-size: var(--text-sm);
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* accent-color tints the native control in every current browser, which
+     beats reimplementing a slider with four vendor pseudo-elements. */
+  .control__range {
+    width: 100%;
+    height: 1.6rem;
+    accent-color: var(--accent);
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .control__text {
+    width: 100%;
+    padding: 0.65em 0.9em;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--ink);
+    color: var(--accent);
+    font-size: var(--text-md);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .controls__snippet {
+    overflow-x: auto;
+    margin-top: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--ink);
+    font-size: var(--text-sm);
+    color: var(--accent);
+  }
+</style>

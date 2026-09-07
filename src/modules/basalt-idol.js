@@ -16,6 +16,7 @@ import { createPointer } from '../lib/pointer.js';
 import { createGlyphStrip, GLYPH_SETS } from '../lib/glyphs.js';
 import { createGradientEnvironment } from '../lib/textures.js';
 import { PALETTE, CSS_PALETTE } from '../lib/palette.js';
+import { createParamSetter } from '../lib/params.js';
 
 export const defaults = {
   scanSeconds: 4.5,
@@ -204,6 +205,8 @@ export default function create(canvas, options = {}) {
     scanMaterial.dispose();
     bandMaterial.dispose();
   });
+
+  stage.setParam = createParamSetter(params);
 
   return stage.start();
 }

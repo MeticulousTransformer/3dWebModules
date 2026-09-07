@@ -69,30 +69,45 @@ export function createMountManager({ budget = 4, load, rootMargin = '250px', gra
   }
 
   async function mount(slot) {
+    if (slot.instance || slot.loading) return;
+
     slot.loading = true;
     slot.element.dataset.state = 'loading';
+
+    let instance = null;
     try {
       const create = await load(slot.id);
       // The user may have scrolled away while the chunk was downloading.
-      if (!slot.visible) {
-        slot.loading = false;
-        slot.element.dataset.state = 'idle';
-        pump();
-        return;
-      }
-      slot.instance = create(slot.canvas, slot.options);
-      slot.element.dataset.state = 'live';
-      // An extension point: pages that want to drive a live module (a text
-      // input, a slider) listen for this and keep hold of the instance.
-      slot.element.dispatchEvent(
-        new CustomEvent('module:mounted', { detail: { id: slot.id, instance: slot.instance } }),
-      );
+      if (slot.visible) instance = create(slot.canvas, slot.options);
     } catch (error) {
       slot.element.dataset.state = 'error';
       console.error('[athanor] module "' + slot.id + '" failed to start:', error);
-    } finally {
       slot.loading = false;
+      return;
     }
+
+    slot.loading = false;
+
+    if (!instance) {
+      slot.element.dataset.state = 'idle';
+      pump();
+      return;
+    }
+
+    slot.instance = instance;
+    slot.element.dataset.state = 'live';
+
+    // An extension point: pages that want to drive a live module (a slider, a
+    // text box) listen for this and keep hold of the instance.
+    //
+    // This is deliberately the LAST thing mount() does, with the slot already
+    // in a settled state. A listener is allowed to turn round and ask for a
+    // rebuild — and if it did that while we were still mid-mount, the rebuild
+    // and this call would fight over the same slot and leave two modules on
+    // one canvas.
+    slot.element.dispatchEvent(
+      new CustomEvent('module:mounted', { detail: { id: slot.id, instance } }),
+    );
   }
 
   function unmount(slot) {
@@ -120,6 +135,24 @@ export function createMountManager({ budget = 4, load, rootMargin = '250px', gra
   }
 
   return {
+    /**
+     * Change a mounted module's options. Anything a module cannot adjust with
+     * setParam needs building again from scratch, and that is what this does:
+     * tear the slot down and let pump() put it straight back with the new
+     * options. The canvas swap in unmount() is what makes that safe.
+     */
+    setOptions(element, options, { rebuild = true } = {}) {
+      const slot = slots.get(element);
+      if (!slot) return;
+
+      // Always remember the new options, so a slot that gets disposed for
+      // scrolling out of view comes back with the settings it had.
+      slot.options = { ...slot.options, ...options };
+
+      if (rebuild && slot.instance) unmount(slot);
+      pump();
+    },
+
     /** element must contain a <canvas>. */
     observe(element, id, options = {}) {
       const canvas = element.querySelector('canvas');

@@ -2,7 +2,9 @@
 import Base from '../layouts/Base.astro';
 import ModuleCanvas from '../components/ModuleCanvas.astro';
 import ModuleCard from '../components/ModuleCard.astro';
-import { MODULES } from '../modules/index.js';
+import { MODULES, FAMILIES, familyCounts } from '../modules/index.js';
+
+const counts = familyCounts();
 import { SITE } from '../site.config.js';
 
 const specs = [
@@ -30,6 +32,12 @@ const steps = [
     title: 'Call it with a canvas',
     body: 'It returns a handle. Call dispose() when the thing unmounts and the GPU memory goes back where it came from.',
   },
+];
+
+const tuning = [
+  'Every module page has sliders for its own parameters.',
+  'Drag them, watch it change, and press copy config.',
+  'What you get back is the exact call that makes what you are looking at.',
 ];
 ---
 
@@ -125,6 +133,19 @@ const steps = [
       </p>
     </header>
 
+    <nav class="filter reveal" data-filter aria-label="filter modules">
+      {FAMILIES.map((family, index) => (
+        <button
+          class="filter__chip"
+          type="button"
+          data-family={family.id}
+          aria-pressed={index === 0 ? 'true' : 'false'}
+        >
+          {family.label}<span class="filter__count">{counts[family.id]}</span>
+        </button>
+      ))}
+    </nav>
+
     <div class="modules__grid">
       {MODULES.map((module) => <ModuleCard module={module} />)}
     </div>
@@ -156,12 +177,44 @@ const wheel = create(canvas, { arms: 7, spin: 0.5 });
 wheel.dispose();`}</code></pre>
       <p class="lift__note">
         That is all of it. <code>start()</code>, <code>stop()</code> and
-        <code>dispose()</code> are the only methods, and a few modules add a single
-        <code>setParam(key, value)</code>.
+        <code>dispose()</code> are the only methods, plus
+        <code>setParam(key, value)</code> for changing something while it runs.
       </p>
+    </div>
+
+    <div class="lift__tune">
+      <p class="label label--accent">you do not have to guess the numbers</p>
+      <ul class="lift__tune-list">
+        {tuning.map((line) => <li>{line}</li>)}
+      </ul>
     </div>
   </section>
 </Base>
+
+<script>
+  // Filtering is just hiding cards. The nice part is that hiding one takes it
+  // out of the viewport, so the mount manager disposes its module on its own
+  // and hands the freed WebGL context to whatever is still showing.
+  const filter = document.querySelector('[data-filter]');
+
+  if (filter) {
+    const cards = [...document.querySelectorAll('[data-families]')];
+
+    filter.addEventListener('click', (event) => {
+      const chip = event.target.closest('[data-family]');
+      if (!chip) return;
+
+      for (const other of filter.querySelectorAll('[data-family]')) {
+        other.setAttribute('aria-pressed', String(other === chip));
+      }
+
+      const family = chip.dataset.family;
+      for (const card of cards) {
+        card.hidden = !card.dataset.families.split(' ').includes(family);
+      }
+    });
+  }
+</script>
 
 <style>
   /* ---------- hero ---------- */
@@ -337,6 +390,39 @@ wheel.dispose();`}</code></pre>
 
   .modules__title { font-size: var(--text-xl); }
 
+  .filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: var(--space-4);
+  }
+
+  .filter__chip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.55em;
+    padding: 0.4em 0.95em;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: transparent;
+    font-size: var(--text-xs);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    cursor: pointer;
+    transition: color 0.3s var(--ease), border-color 0.3s var(--ease), background 0.3s var(--ease);
+  }
+
+  .filter__chip:hover { color: var(--text); border-color: var(--line-strong); }
+
+  .filter__chip[aria-pressed='true'] {
+    color: var(--gold);
+    border-color: color-mix(in srgb, var(--gold) 45%, transparent);
+    background: color-mix(in srgb, var(--gold) 8%, transparent);
+  }
+
+  .filter__count { font-size: 0.85em; opacity: 0.6; }
+
   .modules__grid {
     display: grid;
     gap: var(--space-3);
@@ -395,5 +481,21 @@ wheel.dispose();`}</code></pre>
   }
 
   .lift__note { font-size: var(--text-sm); color: var(--text-dim); }
+
+  .lift__tune {
+    margin-top: var(--space-3);
+    padding: var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  .lift__tune-list {
+    margin: var(--space-2) 0 0;
+    padding-left: 1.1em;
+    font-size: var(--text-sm);
+    color: var(--text-dim);
+  }
+
+  .lift__tune-list li { margin-bottom: 0.3em; }
   .lift__note code, .lift__code code { color: var(--gold); }
 </style>

@@ -2,6 +2,7 @@
 import { codeToHtml } from 'shiki';
 import Base from '../../layouts/Base.astro';
 import ModuleCanvas from '../../components/ModuleCanvas.astro';
+import ModuleControls from '../../components/ModuleControls.astro';
 import { MODULES } from '../../modules/index.js';
 import { getSource, getDependencies, getSourceStats } from '../../modules/sources.js';
 
@@ -23,9 +24,6 @@ const dependencies = getDependencies(module.id);
 const stats = getSourceStats(module.id);
 
 const highlighted = await codeToHtml(source, { lang: 'javascript', theme: 'vesper' });
-
-// Only this module exposes a live knob, so only this page shows the input.
-const hasPhraseInput = module.id === 'sigil-forge';
 ---
 
 <Base title={module.title} description={module.blurb} accent={module.accent}>
@@ -43,23 +41,7 @@ const hasPhraseInput = module.id === 'sigil-forge';
     </header>
   </section>
 
-  {hasPhraseInput && (
-    <section class="page control reveal">
-      <label class="label" for="phrase">your intent — the sigil re-forges as you type</label>
-      <input
-        id="phrase"
-        class="control__input"
-        type="text"
-        value="AS ABOVE SO BELOW"
-        maxlength="64"
-        autocomplete="off"
-        spellcheck="false"
-      />
-      <p class="control__hint">
-        vowels are struck out, repeats are struck out, and what survives becomes the shape.
-      </p>
-    </section>
-  )}
+  <ModuleControls module={module} />
 
   <!-- ============ what it is ============ -->
   <section class="page about reveal">
@@ -156,26 +138,6 @@ instance.dispose();`}</code></pre>
       setTimeout(() => { copyButton.textContent = 'copy'; }, 2000);
     });
   }
-
-  // ---- live parameter, for the modules that expose one --------------------
-  const phraseInput = document.querySelector('#phrase');
-  const stageElement = document.querySelector('[data-module]');
-
-  if (phraseInput && stageElement) {
-    let live = null;
-
-    // The mount manager tells us when the module actually starts, and when it
-    // is torn down for scrolling out of view.
-    stageElement.addEventListener('module:mounted', (event) => {
-      live = event.detail.instance;
-      if (live.setParam) live.setParam('phrase', phraseInput.value);
-    });
-    stageElement.addEventListener('module:unmounted', () => { live = null; });
-
-    phraseInput.addEventListener('input', () => {
-      if (live && live.setParam) live.setParam('phrase', phraseInput.value);
-    });
-  }
 </script>
 
 <style>
@@ -208,30 +170,6 @@ instance.dispose();`}</code></pre>
   }
 
   .show__title { font-size: var(--text-2xl); margin-top: var(--space-1); }
-
-  /* ---------- live control ---------- */
-  .control {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    padding-block: var(--space-4);
-    border-bottom: 1px solid var(--line);
-  }
-
-  .control__input {
-    width: 100%;
-    padding: 0.8em 1em;
-    border: 1px solid var(--line-strong);
-    border-radius: var(--radius);
-    background: var(--ink);
-    color: var(--accent);
-    font-size: var(--text-lg);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-  .control__input:focus { outline: 1px solid var(--accent); outline-offset: 2px; }
-
-  .control__hint { font-size: var(--text-sm); color: var(--text-faint); }
 
   /* ---------- about ---------- */
   .about {

@@ -13,6 +13,7 @@ import { createStage } from '../lib/stage.js';
 import { createPointer } from '../lib/pointer.js';
 import { scale } from '../lib/device.js';
 import { PALETTE } from '../lib/palette.js';
+import { createParamSetter } from '../lib/params.js';
 
 export const defaults = {
   maxSegments: 0,      // 0 = pick from the device
@@ -229,6 +230,10 @@ export default function create(canvas, options = {}) {
   geometry.attributes.position.needsUpdate = true;
   geometry.attributes.aBorn.needsUpdate = true;
   geometry.attributes.aSeed.needsUpdate = true;
+
+  stage.setParam = createParamSetter(params, {
+    fadeSeconds: (value) => { uniforms.uFade.value = value; },
+  });
 
   return stage.start();
 }

@@ -18,6 +18,7 @@ import { createGradientEnvironment, createRadialGlowTexture } from '../lib/textu
 import { GLSL_NOISE } from '../lib/glsl.js';
 import { scale } from '../lib/device.js';
 import { PALETTE, CSS_PALETTE } from '../lib/palette.js';
+import { createParamSetter } from '../lib/params.js';
 
 export const defaults = {
   detail: 0,        // 0 = pick from the device
@@ -160,6 +161,11 @@ export default function create(canvas, options = {}) {
     geometry.dispose();
     material.dispose();
     moteGeometry.dispose();
+  });
+
+  stage.setParam = createParamSetter(params, {
+    amount: (value) => { shaderUniforms.uAmount.value = value; },
+    churn: (value) => { shaderUniforms.uChurn.value = value; },
   });
 
   return stage.start();

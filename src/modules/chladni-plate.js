@@ -17,6 +17,7 @@ import { createStage } from '../lib/stage.js';
 import { createPointer } from '../lib/pointer.js';
 import { scale } from '../lib/device.js';
 import { PALETTE } from '../lib/palette.js';
+import { createParamSetter } from '../lib/params.js';
 
 export const defaults = {
   count: 0,           // 0 = pick from the device
@@ -120,7 +121,6 @@ export default function create(canvas, options = {}) {
   stage.scene.add(frame);
 
   // ---- which note is playing ----------------------------------------------
-  const cycleLength = params.holdSeconds + params.morphSeconds;
   let fromNote = { n: 3, m: 5 };
   let toNote = { n: 5, m: 2 };
   let currentCycle = 0;
@@ -138,6 +138,8 @@ export default function create(canvas, options = {}) {
   stage.onFrame(({ time, dt }) => {
     pointer.update(dt);
 
+    // Read every frame, so the timings can be tuned live.
+    const cycleLength = params.holdSeconds + params.morphSeconds;
     const cycle = Math.floor(time / cycleLength);
     if (cycle !== currentCycle) {
       currentCycle = cycle;
@@ -188,6 +190,8 @@ export default function create(canvas, options = {}) {
     material.dispose();
     frameGeometry.dispose();
   });
+
+  stage.setParam = createParamSetter(params);
 
   return stage.start();
 }
