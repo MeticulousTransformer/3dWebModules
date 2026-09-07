@@ -16,7 +16,7 @@ const {
 ---
 
 <div class="stage" data-module={id} data-accent={accent} style={`--stage-height:${height}`}>
-  <canvas class="stage__canvas" data-interactive={interactive}></canvas>
+  <canvas class="stage__canvas" data-interactive={interactive} role="img" aria-label={`${id.replaceAll('-', ' ')} — interactive 3D artwork`}></canvas>
 
   <div class="stage__scan" aria-hidden="true"></div>
 

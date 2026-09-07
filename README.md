@@ -2,7 +2,7 @@
 
 A furnace for 3D web modules.
 
-Twenty-four three.js pieces — alchemy, Georgian and Japanese sign, physics,
+Twenty-eight three.js pieces — alchemy, Georgian and Japanese sign, physics,
 chemistry, neon, and a wing of gothic stone — each written as **one file you
 can pick up and drop somewhere else**. The website around them is an Astro static site that exists
 mainly to show them running, let you tune them, and hand you the source.
@@ -119,7 +119,7 @@ This is not a claim, it is a handful of specific decisions:
   tab, zero frames are drawn.
 - **WebGL contexts are budgeted.** A browser only gives you eight to sixteen
   live contexts before it starts silently killing the oldest. The gallery has
-  twenty-six canvases, so `mount-manager.js` mounts modules as they scroll in and
+  thirty canvases, so `mount-manager.js` mounts modules as they scroll in and
   disposes them when they leave — three alive at a time on a phone, six on a
   desktop. Verified, not assumed.
 - **Filtering falls out of that for free.** Hiding a card takes it out of the
@@ -195,6 +195,10 @@ two things.
 
 | module | what it is | cost |
 |---|---|---|
+| Sidereal Engine | a brass armillary instrument with elliptical orbits and a dark sun | medium |
+| Lorenz Reliquary | an RK4 Lorenz trajectory, blue-green and gold, in a spare brass frame | medium |
+| Nocturne Iris | overlapping steel aperture leaves above a coated optical element | medium |
+| Ferrofluid Crown | a polished black peak field in a brass-rimmed vessel | medium |
 | Borjgali Vortex | the seven-armed Georgian sun sign, extruded in gold and repeated into depth | light |
 | Hermetic Seal | two engraved discs turning against each other, as above so below | light |
 | Glyph Rain | falling code in Asomtavruli, katakana and planetary signs — one draw call | light |
@@ -229,5 +233,34 @@ two things.
 - The simplex noise in `src/lib/glsl.js` is Ashima Arts' standard
   implementation, MIT licensed, unmodified.
 - Everything else here is yours. Take it.
-#   3 d W e b M o d u l e s  
- 
+
+## The instrument collection
+
+Four additions combine astronomy, mathematics, cinema, and sculptural material studies.
+They appear first in the gallery and use the same `create(canvas, options)` API,
+lazy loading, URL controls, source panels, and teardown as the original modules.
+
+- **Sidereal Engine** solves Kepler's equation for elliptical motion. Orbit sizes,
+  relative scales, and starting phases are designed; it is not an ephemeris.
+- **Lorenz Reliquary** integrates the Lorenz equations with a fixed RK4 step,
+  removes a transient, and stores the trajectory. Sigma and rho rebuild the curve;
+  trace speed and filament width change live. Its thick lines use Three.js addons,
+  which come with the existing `three` package.
+- **Nocturne Iris** uses bounded polar leaves inside a machined barrel. Aperture,
+  breathing depth, and breathing speed change live. The leaf motion and optical
+  coating are artistic studies, not a calibrated optical model.
+- **Ferrofluid Crown** uses a hexagonal wave field, GPU displacement, and
+  finite-difference normals. This is inspired by ferrofluid, not a fluid solver.
+  Lower field strength to zero for a flat surface. Pointer movement moves the field.
+
+`src/lib/instrument-studio.js` owns the shared reflection lighting and aspect-aware
+camera framing. It imports only `three`, so the automatically listed copyable
+files remain sufficient. Instrument options reject non-finite numbers and clamp
+ranges before allocating geometry. Live settings also repaint a still frame under
+`prefers-reduced-motion`; the existing stage pauses offscreen work and disposes it.
+
+Run the instrument mathematics and geometry checks with:
+
+```bash
+node --test tests/instruments.test.mjs
+```
