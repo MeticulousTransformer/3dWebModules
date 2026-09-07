@@ -229,3 +229,5 @@ two things.
 - The simplex noise in `src/lib/glsl.js` is Ashima Arts' standard
   implementation, MIT licensed, unmodified.
 - Everything else here is yours. Take it.
+#   3 d W e b M o d u l e s  
+ 
