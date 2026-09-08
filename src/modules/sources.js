@@ -33,8 +33,14 @@ export function getDefaults(id) {
  * No hand-maintained list to fall out of date.
  */
 export function getDependencies(id) {
-  const matches = [...getSource(id).matchAll(/from '\.\.\/lib\/([\w-]+\.js)'/g)];
-  return [...new Set(matches.map((match) => match[1]))].sort();
+  const files = new Set();
+  function visit(name) {
+    if (files.has(name)) return;
+    files.add(name);
+    for (const match of getLibSource(name).matchAll(/from '\.\/([\w-]+\.js)'/g)) visit(match[1]);
+  }
+  for (const match of getSource(id).matchAll(/from '\.\.\/lib\/([\w-]+\.js)'/g)) visit(match[1]);
+  return [...files].sort();
 }
 
 /** Rough size of the module file on its own, in lines and bytes. */

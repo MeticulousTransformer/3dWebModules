@@ -30,6 +30,111 @@ const loaders = import.meta.glob(['./*.js', '!./index.js', '!./sources.js']);
 
 export const MODULES = [
   {
+    id: 'aether-loom',
+    title: 'Aether Loom',
+    subtitle: 'light under tension',
+    renderer: 'webgpu',
+    accent: 'gold',
+    cost: 'medium',
+    tags: ['webgpu', 'compute', 'particles', 'alchemy'],
+    blurb:
+      'Sixty-five thousand points of light weave a braided sculpture in brass and blue. Move across it to bend the field. A native WebGPU compute pass updates persistent positions and velocities, then renders directly from the same GPU buffer. Browsers without WebGPU show a labelled 2D study.',
+    teaches: 'WGSL compute kernels, storage buffers, GPU-resident state, instanced particle rendering',
+    controls: [
+      { key: 'speed', label: 'flow speed', min: 0, max: 2, step: 0.01, live: true },
+      { key: 'twist', label: 'braid depth', min: 0.3, max: 1.8, step: 0.01, live: true },
+      { key: 'size', label: 'light size', min: 0.7, max: 3.5, step: 0.1, live: true },
+      { key: 'count', label: 'particles', min: 8192, max: 131072, step: 8192 },
+    ],
+  },
+  {
+    id: 'obsidian-resonator',
+    title: 'Obsidian Resonator',
+    subtitle: 'an instrument for invisible waves',
+    renderer: 'webgpu',
+    accent: 'moon',
+    cost: 'medium',
+    tags: ['webgpu', 'compute', 'physics', 'waves'],
+    blurb:
+      'A black reflective membrane inside an engraved brass rim. Move the excitation point, tune its frequency, and watch waves cross the surface. Two GPU buffers exchange height and velocity at fixed simulation steps. The wave equation is real; the metallic finish and scales are artistic. A labelled 2D study appears when WebGPU is unavailable.',
+    teaches: 'WGSL compute, ping-pong storage buffers, a stable finite-difference wave solver, normals reconstructed from simulation state',
+    controls: [
+      { key: 'drive', label: 'excitation', min: 0, max: 1.5, step: 0.01, live: true },
+      { key: 'damping', label: 'wave retention', min: 0.96, max: 0.998, step: 0.001, live: true },
+      { key: 'frequency', label: 'frequency', min: 0.3, max: 2.5, step: 0.01, live: true },
+      { key: 'speed', label: 'simulation speed', min: 0, max: 2, step: 0.01, live: true },
+    ],
+  },
+  // ---- instruments: astronomy, chaos, cinema, magnetism -------------------
+  {
+    id: 'sidereal-engine',
+    title: 'Sidereal Engine',
+    subtitle: 'a clock without a country',
+    accent: 'gold',
+    cost: 'medium',
+    tags: ['astronomy', 'orbits', 'alchemy', 'geometry'],
+    blurb:
+      'A brass armillary instrument around a dark sun. Elliptical paths, inlaid degree marks and counter-turning meridians recall the machinery of an old observatory. The orbits solve Kepler’s equation; their sizes and periods are an artistic scale, not a map of the solar system.',
+    teaches: 'Kepler’s equation, instanced engraving, polished metal, framing a 3D object on narrow screens',
+    controls: [
+      { key: 'speed', label: 'orbital speed', min: 0, max: 1.5, step: 0.01, live: true },
+      { key: 'obliquity', label: 'axial tilt', min: 0, max: 60, step: 0.1, live: true },
+      { key: 'eccentricity', label: 'eccentricity', min: 0, max: 0.55, step: 0.01, live: true },
+      { key: 'orbitCount', label: 'orbits', min: 3, max: 7, step: 1 },
+    ],
+  },
+  {
+    id: 'lorenz-reliquary',
+    title: 'Lorenz Reliquary',
+    subtitle: 'a small change in the beginning',
+    accent: 'moon',
+    cost: 'medium',
+    tags: ['physics', 'chaos', 'mathematics', 'gothic'],
+    blurb:
+      'Two wings of brass and blue-green filament, suspended inside a spare metal frame. This is a trajectory through the Lorenz equations, integrated with RK4. Nine points of light trace its history. Change the equation’s parameters to reshape the attractor.',
+    teaches: 'fourth-order Runge–Kutta integration, deterministic chaos, screen-space line geometry, precomputed trajectories',
+    controls: [
+      { key: 'speed', label: 'trace speed', min: 0, max: 2, step: 0.01, live: true },
+      { key: 'filament', label: 'filament width', min: 0.5, max: 2.4, step: 0.05, live: true },
+      { key: 'rho', label: 'rho · ρ', min: 24, max: 40, step: 0.5 },
+      { key: 'sigma', label: 'sigma · σ', min: 8, max: 14, step: 0.5 },
+    ],
+  },
+  {
+    id: 'nocturne-iris',
+    title: 'Nocturne Iris',
+    subtitle: 'the instrument that lets light in',
+    accent: 'bone',
+    cost: 'medium',
+    tags: ['cinema', 'optics', 'mechanism', 'instancing'],
+    blurb:
+      'A cinema lens recast as a ceremonial object. Overlapping steel leaves open above a coated optical element, surrounded by machined brass and an engraved barrel. Set the opening, slow its breathing, and move around the reflections. The leaf motion is a designed mechanism, not a lens engineering model.',
+    teaches: 'overlapping polar surfaces, physical-material optical coatings, instanced machining details',
+    controls: [
+      { key: 'aperture', label: 'aperture', min: 0.12, max: 0.95, step: 0.01, live: true },
+      { key: 'breath', label: 'breathing depth', min: 0, max: 0.22, step: 0.01, live: true },
+      { key: 'speed', label: 'breathing speed', min: 0, max: 1.2, step: 0.01, live: true },
+      { key: 'blades', label: 'leaves', min: 7, max: 14, step: 1 },
+    ],
+  },
+  {
+    id: 'ferrofluid-crown',
+    title: 'Ferrofluid Crown',
+    subtitle: 'matter listening to a field',
+    accent: 'moon',
+    cost: 'medium',
+    tags: ['physics', 'magnetism', 'shader', 'metal'],
+    blurb:
+      'Black liquid rises into a hexagonal field of polished peaks inside a brass-rimmed vessel. Move the pointer to draw the field through the surface, or flatten it by reducing its strength. A procedural interpretation of ferrofluid, with surface slopes that keep every reflection attached to the shape.',
+    teaches: 'hexagonal wave interference, GPU vertex displacement, finite-difference normals, circular mesh topology',
+    controls: [
+      { key: 'field', label: 'field strength', min: 0, max: 1.5, step: 0.01, live: true },
+      { key: 'frequency', label: 'peak density', min: 5, max: 12, step: 0.1, live: true },
+      { key: 'speed', label: 'field drift', min: 0, max: 1, step: 0.01, live: true },
+      { key: 'metallic', label: 'metallic response', min: 0.5, max: 1, step: 0.01, live: true },
+    ],
+  },
+  {
     id: 'borjgali-vortex',
     title: 'Borjgali Vortex',
     subtitle: 'ბორჯღალი',
@@ -651,6 +756,7 @@ export const MODULE_IDS = MODULES.map((module) => module.id);
  */
 export const FAMILIES = [
   { id: 'all', label: 'everything', tags: [] },
+  { id: 'webgpu', label: 'webgpu', tags: ['webgpu'] },
   { id: 'georgian', label: 'georgian', tags: ['georgian'] },
   { id: 'japanese', label: 'japanese', tags: ['japanese', 'shinto', 'buddhism'] },
   { id: 'occult', label: 'occult', tags: ['occult', 'hermeticism', 'kabbalah', 'alchemy', 'ancient gods', 'ritual', 'christian'] },

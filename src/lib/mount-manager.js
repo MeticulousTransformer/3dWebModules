@@ -17,6 +17,7 @@ export function createMountManager({ budget = 4, load, rootMargin = '250px', gra
   /** element -> { id, visible, instance, lastSeen, unmountTimer, loading } */
   const slots = new Map();
   let clock = 0;
+  let destroyed = false;
 
   const observer = new IntersectionObserver(
     (entries) => {
@@ -58,6 +59,7 @@ export function createMountManager({ budget = 4, load, rootMargin = '250px', gra
 
   /** Mount everything visible that is not mounted yet, as far as budget allows. */
   function pump() {
+    if (destroyed) return;
     const waiting = [...slots.values()]
       .filter((slot) => slot.visible && !slot.instance && !slot.loading)
       .sort((a, b) => b.lastSeen - a.lastSeen);
@@ -72,14 +74,27 @@ export function createMountManager({ budget = 4, load, rootMargin = '250px', gra
     if (slot.instance || slot.loading) return;
 
     slot.loading = true;
+    const generation = ++slot.generation;
     slot.element.dataset.state = 'loading';
 
     let instance = null;
     try {
       const create = await load(slot.id);
+      if (destroyed || generation !== slot.generation) return;
       // The user may have scrolled away while the chunk was downloading.
-      if (slot.visible) instance = create(slot.canvas, slot.options);
+      if (slot.visible) {
+        instance = create(slot.canvas, slot.options);
+        slot.instance = instance;
+        // A pending WebGPU device still owns a disposable handle and a budget slot.
+        if (instance?.ready) await instance.ready;
+        if (destroyed || generation !== slot.generation) { instance?.dispose(); return; }
+        if (!slot.visible) { unmount(slot); pump(); return; }
+        for (const [key, value] of Object.entries(slot.options)) instance.setParam?.(key, value);
+      }
     } catch (error) {
+      if (destroyed || generation !== slot.generation) return;
+      instance?.dispose();
+      slot.instance = null;
       slot.element.dataset.state = 'error';
       console.error('[athanor] module "' + slot.id + '" failed to start:', error);
       slot.loading = false;
@@ -111,6 +126,8 @@ export function createMountManager({ budget = 4, load, rootMargin = '250px', gra
   }
 
   function unmount(slot) {
+    slot.generation++;
+    slot.loading = false;
     clearTimeout(slot.unmountTimer);
     slot.unmountTimer = 0;
     if (slot.instance) {
@@ -127,8 +144,10 @@ export function createMountManager({ budget = 4, load, rootMargin = '250px', gra
     // another one — getContext() just returns null from then on. So the old
     // element is thrown away and an identical empty one takes its place,
     // which is what makes a slot re-mountable when it scrolls back into view.
-    const fresh = slot.canvas.cloneNode(false);
-    slot.canvas.replaceWith(fresh);
+    // WebGPU may replace its canvas when switching to the 2D fallback.
+    const current = slot.element.querySelector('canvas') ?? slot.canvas;
+    const fresh = current.cloneNode(false);
+    current.replaceWith(fresh);
     slot.canvas = fresh;
 
     slot.element.dataset.state = 'idle';
@@ -149,7 +168,7 @@ export function createMountManager({ budget = 4, load, rootMargin = '250px', gra
       // scrolling out of view comes back with the settings it had.
       slot.options = { ...slot.options, ...options };
 
-      if (rebuild && slot.instance) unmount(slot);
+      if (rebuild && (slot.instance || slot.loading)) unmount(slot);
       pump();
     },
 
@@ -160,7 +179,7 @@ export function createMountManager({ budget = 4, load, rootMargin = '250px', gra
       const slot = {
         element, canvas, id, options,
         visible: false, instance: null, loading: false,
-        lastSeen: ++clock, unmountTimer: 0,
+        lastSeen: ++clock, unmountTimer: 0, generation: 0,
       };
       slots.set(element, slot);
       element.dataset.state = 'idle';
@@ -169,6 +188,7 @@ export function createMountManager({ budget = 4, load, rootMargin = '250px', gra
     },
 
     destroy() {
+      destroyed = true;
       observer.disconnect();
       for (const slot of slots.values()) unmount(slot);
       slots.clear();

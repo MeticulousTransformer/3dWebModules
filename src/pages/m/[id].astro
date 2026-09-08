@@ -85,8 +85,8 @@ const highlighted = await codeToHtml(source, { lang: 'javascript', theme: 'vespe
         </li>
       ))}
       <li class="files__item files__item--dep">
-        <span class="files__path">npm i three</span>
-        <span class="files__note">the only package</span>
+        <span class="files__path">{module.renderer === 'webgpu' ? 'Browser APIs · no packages' : 'npm i three'}</span>
+        <span class="files__note">{module.renderer === 'webgpu' ? 'serve over HTTPS or localhost' : 'the only package'}</span>
       </li>
     </ol>
 

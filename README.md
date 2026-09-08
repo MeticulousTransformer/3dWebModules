@@ -2,7 +2,7 @@
 
 A furnace for 3D web modules.
 
-Thirty-six three.js pieces — alchemy, Georgian and Japanese sign, physics,
+Forty-two pieces using Three.js and native WebGPU — alchemy, Georgian and Japanese sign, physics,
 chemistry, neon, a wing of gothic stone, a studio bench of optics and a
 brassworks of real mechanisms — each written as **one file you can pick up and
 drop somewhere else**. The website around them is an Astro static site that exists
@@ -32,7 +32,7 @@ wheel.dispose();               // and hand the GPU memory back
 `start()`, `stop()`, `dispose()` and `setParam(key, value)` are the entire API.
 
 No module imports anything from this website. Not the layout, not the config,
-not a store, not a context. They import `three` and two or three small helpers
+not a store, not a context. The WebGL modules import `three` and a few small helpers
 from `src/lib/`, and nothing else. That is the whole design, and everything
 else in this repo follows from it.
 
@@ -42,7 +42,7 @@ else in this repo follows from it.
 2. Copy the helpers it imports — its page on the site lists them exactly, and
    so do the import lines at the top of the file. It is usually
    `src/lib/stage.js` and `src/lib/pointer.js`.
-3. `npm i three`
+3. For WebGL modules, `npm i three`. Native WebGPU modules need no packages.
 
 That is it. There are no assets to bring: every texture in this project is
 drawn with canvas2d at runtime, so there is no `public/` folder to keep in sync
@@ -97,7 +97,7 @@ src/
 ```
 
 `src/lib/stage.js` is the file to read first. It is 280 lines and it is the
-thing every module sits on.
+base for WebGL modules; `webgpu-stage.js` handles native GPU modules.
 
 ### Why the code looks like this
 
@@ -122,7 +122,7 @@ This is not a claim, it is a handful of specific decisions:
   tab, zero frames are drawn.
 - **WebGL contexts are budgeted.** A browser only gives you eight to sixteen
   live contexts before it starts silently killing the oldest. The gallery has
-  thirty-eight canvases, so `mount-manager.js` mounts modules as they scroll in and
+  forty-four canvases, so `mount-manager.js` mounts modules as they scroll in and
   disposes them when they leave — three alive at a time on a phone, six on a
   desktop. Verified, not assumed.
 - **Filtering falls out of that for free.** Hiding a card takes it out of the
@@ -208,6 +208,12 @@ two things.
 
 | module | what it is | cost |
 |---|---|---|
+| Aether Loom | native WebGPU particle braid | heavy |
+| Obsidian Resonator | native WebGPU wave field in black metal | heavy |
+| Sidereal Engine | a brass armillary instrument with elliptical orbits and a dark sun | medium |
+| Lorenz Reliquary | an RK4 Lorenz trajectory, blue-green and gold, in a spare brass frame | medium |
+| Nocturne Iris | overlapping steel aperture leaves above a coated optical element | medium |
+| Ferrofluid Crown | a polished black peak field in a brass-rimmed vessel | medium |
 | Borjgali Vortex | the seven-armed Georgian sun sign, extruded in gold and repeated into depth | light |
 | Hermetic Seal | two engraved discs turning against each other, as above so below | light |
 | Glyph Rain | falling code in Asomtavruli, katakana and planetary signs — one draw call | light |
@@ -290,3 +296,52 @@ SITE_BASE=/3dWebModules/ npm run build
 - The simplex noise in `src/lib/glsl.js` is Ashima Arts' standard
   implementation, MIT licensed, unmodified.
 - Everything else here is yours. Take it.
+
+## The instrument collection
+
+Four additions combine astronomy, mathematics, cinema, and sculptural material studies.
+They appear first in the gallery and use the same `create(canvas, options)` API,
+lazy loading, URL controls, source panels, and teardown as the original modules.
+
+- **Sidereal Engine** solves Kepler's equation for elliptical motion. Orbit sizes,
+  relative scales, and starting phases are designed; it is not an ephemeris.
+- **Lorenz Reliquary** integrates the Lorenz equations with a fixed RK4 step,
+  removes a transient, and stores the trajectory. Sigma and rho rebuild the curve;
+  trace speed and filament width change live. Its thick lines use Three.js addons,
+  which come with the existing `three` package.
+- **Nocturne Iris** uses bounded polar leaves inside a machined barrel. Aperture,
+  breathing depth, and breathing speed change live. The leaf motion and optical
+  coating are artistic studies, not a calibrated optical model.
+- **Ferrofluid Crown** uses a hexagonal wave field, GPU displacement, and
+  finite-difference normals. This is inspired by ferrofluid, not a fluid solver.
+  Lower field strength to zero for a flat surface. Pointer movement moves the field.
+
+`src/lib/instrument-studio.js` owns the shared reflection lighting and aspect-aware
+camera framing. It imports only `three`, so the automatically listed copyable
+files remain sufficient. Instrument options reject non-finite numbers and clamp
+ranges before allocating geometry. Live settings also repaint a still frame under
+`prefers-reduced-motion`; the existing stage pauses offscreen work and disposes it.
+
+Run the instrument mathematics and geometry checks with:
+
+```bash
+node --test tests/instruments.test.mjs
+```
+
+## Native WebGPU studies
+
+- **Aether Loom** uses a WGSL compute shader to advance up to 131,072 particles
+  around a braided torus knot, then renders the same storage buffer as instanced light.
+- **Obsidian Resonator** advances a damped wave field in alternating GPU buffers
+  and shades it as black metal inside an engraved brass rim. Move the pointer to
+  reposition the oscillator. This is an artistic numerical study.
+
+Both return the usual synchronous handle plus `ready`, a promise that settles
+when initialization finishes. Use HTTPS or localhost. The visible backend badge
+confirms whether GPU compute is active; unsupported devices and device loss switch
+to an explicitly labelled Canvas2D study. The fallback is not the GPU simulation.
+The lifecycle pauses hidden work, respects reduced motion, and destroys buffers,
+textures and devices on disposal, including disposal during asynchronous startup.
+Copy the module and every helper listed on its detail page, preserving folders.
+
+Run all numerical and lifecycle checks with `node --test tests/*.test.mjs`.
