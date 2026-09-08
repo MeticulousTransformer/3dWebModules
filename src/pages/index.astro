@@ -9,7 +9,7 @@ import { SITE } from '../site.config.js';
 
 const specs = [
   ['modules', `${MODULES.length}, each one file`],
-  ['renderer', 'three.js on raw webgl'],
+  ['renderer', 'three.js / webgl + native webgpu compute'],
   ['framework', 'astro — no javascript until a canvas needs it'],
   ['assets', 'none. every texture is drawn at runtime'],
   ['built for', 'a phone held in one hand'],
@@ -19,13 +19,13 @@ const specs = [
 const steps = [
   {
     n: '01',
-    title: 'Copy two files',
-    body: 'The module you want, and src/lib/stage.js. Most modules also want pointer.js. Every module page lists exactly which ones.',
+    title: 'Copy the source',
+    body: 'The module you want and its small helpers. Every module page lists the files to copy.',
   },
   {
     n: '02',
-    title: 'npm i three',
-    body: 'That is the entire dependency list. No loaders, no post-processing stack, no asset folder, no config.',
+    title: 'Bring the dependencies',
+    body: 'WebGL modules use three.js. Native WebGPU modules use browser APIs and need no packages.',
   },
   {
     n: '03',
@@ -59,6 +59,7 @@ const tuning = [
       <ul class="hero__chips">
         <li>{MODULES.length} modules</li>
         <li>three.js</li>
+        <li>webgpu</li>
         <li>astro</li>
         <li>zero assets</li>
       </ul>

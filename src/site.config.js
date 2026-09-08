@@ -7,7 +7,7 @@ export const SITE = {
   georgian: 'ათანორი',
   tagline: 'a furnace for 3d web modules',
   description:
-    'A workbench of isolated three.js modules — alchemy, Georgian and Japanese sign, physics and neon. Every one is a single file you can lift straight into another project.',
+    'A workbench of isolated Three.js and native WebGPU modules — alchemy, scientific instruments, physics and light. Every piece is copyable, with its own source and controls.',
 
   links: {
     github: 'https://github.com/MeticulousTransformer/3dWebModules',

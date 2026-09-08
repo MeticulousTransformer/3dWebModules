@@ -29,6 +29,42 @@
 const loaders = import.meta.glob(['./*.js', '!./index.js', '!./sources.js']);
 
 export const MODULES = [
+  {
+    id: 'aether-loom',
+    title: 'Aether Loom',
+    subtitle: 'light under tension',
+    renderer: 'webgpu',
+    accent: 'gold',
+    cost: 'medium',
+    tags: ['webgpu', 'compute', 'particles', 'alchemy'],
+    blurb:
+      'Sixty-five thousand points of light weave a braided sculpture in brass and blue. Move across it to bend the field. A native WebGPU compute pass updates persistent positions and velocities, then renders directly from the same GPU buffer. Browsers without WebGPU show a labelled 2D study.',
+    teaches: 'WGSL compute kernels, storage buffers, GPU-resident state, instanced particle rendering',
+    controls: [
+      { key: 'speed', label: 'flow speed', min: 0, max: 2, step: 0.01, live: true },
+      { key: 'twist', label: 'braid depth', min: 0.3, max: 1.8, step: 0.01, live: true },
+      { key: 'size', label: 'light size', min: 0.7, max: 3.5, step: 0.1, live: true },
+      { key: 'count', label: 'particles', min: 8192, max: 131072, step: 8192 },
+    ],
+  },
+  {
+    id: 'obsidian-resonator',
+    title: 'Obsidian Resonator',
+    subtitle: 'an instrument for invisible waves',
+    renderer: 'webgpu',
+    accent: 'moon',
+    cost: 'medium',
+    tags: ['webgpu', 'compute', 'physics', 'waves'],
+    blurb:
+      'A black reflective membrane inside an engraved brass rim. Move the excitation point, tune its frequency, and watch waves cross the surface. Two GPU buffers exchange height and velocity at fixed simulation steps. The wave equation is real; the metallic finish and scales are artistic. A labelled 2D study appears when WebGPU is unavailable.',
+    teaches: 'WGSL compute, ping-pong storage buffers, a stable finite-difference wave solver, normals reconstructed from simulation state',
+    controls: [
+      { key: 'drive', label: 'excitation', min: 0, max: 1.5, step: 0.01, live: true },
+      { key: 'damping', label: 'wave retention', min: 0.96, max: 0.998, step: 0.001, live: true },
+      { key: 'frequency', label: 'frequency', min: 0.3, max: 2.5, step: 0.01, live: true },
+      { key: 'speed', label: 'simulation speed', min: 0, max: 2, step: 0.01, live: true },
+    ],
+  },
   // ---- instruments: astronomy, chaos, cinema, magnetism -------------------
   {
     id: 'sidereal-engine',
@@ -512,6 +548,7 @@ export const MODULE_IDS = MODULES.map((module) => module.id);
  */
 export const FAMILIES = [
   { id: 'all', label: 'everything', tags: [] },
+  { id: 'webgpu', label: 'webgpu', tags: ['webgpu'] },
   { id: 'georgian', label: 'georgian', tags: ['georgian'] },
   { id: 'japanese', label: 'japanese', tags: ['japanese', 'shinto', 'buddhism'] },
   { id: 'occult', label: 'occult', tags: ['occult', 'hermeticism', 'kabbalah', 'alchemy', 'ancient gods', 'ritual', 'christian'] },

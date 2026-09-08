@@ -23,9 +23,10 @@ const {
   <p class="stage__state" aria-hidden="true">
     <span class="stage__dot"></span><span class="stage__text"></span>
   </p>
+  <p class="stage__backend" data-backend-status role="status" hidden></p>
 
   <noscript>
-    <p class="stage__noscript">{id} needs JavaScript and WebGL to run.</p>
+    <p class="stage__noscript">{id} needs JavaScript and browser graphics to run.</p>
   </noscript>
 </div>
 
@@ -45,6 +46,16 @@ const {
     });
 
     for (const element of elements) {
+      const status = element.querySelector('[data-backend-status]');
+      element.addEventListener('module:backend', (event) => {
+        element.dataset.backend = event.detail.backend;
+        status.textContent = event.detail.message;
+        status.hidden = false;
+      });
+      element.addEventListener('module:unmounted', () => {
+        status.hidden = true;
+        delete element.dataset.backend;
+      });
       manager.observe(element, element.dataset.module);
 
       // The control panel, if there is one, talks to the manager through this
@@ -75,6 +86,24 @@ const {
     width: 100%;
     height: 100%;
   }
+
+  .stage__backend {
+    position: absolute;
+    top: 0.8rem;
+    left: 0.8rem;
+    right: 0.8rem;
+    width: fit-content;
+    max-width: calc(100% - 1.6rem);
+    margin: 0;
+    padding: 0.4rem 0.6rem;
+    background: rgb(5 7 11 / 85%);
+    border: 1px solid rgb(194 169 112 / 28%);
+    color: #c9be9e;
+    font-size: 0.75rem;
+    line-height: 1.45;
+    pointer-events: none;
+  }
+  .stage[data-backend='canvas2d'] .stage__backend { color: #b7c8d6; }
 
   /* A faint CRT scan over everything, for texture. */
   .stage__scan {

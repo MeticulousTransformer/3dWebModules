@@ -2,7 +2,7 @@
 
 A furnace for 3D web modules.
 
-Twenty-eight three.js pieces — alchemy, Georgian and Japanese sign, physics,
+Thirty pieces using Three.js and native WebGPU — alchemy, Georgian and Japanese sign, physics,
 chemistry, neon, and a wing of gothic stone — each written as **one file you
 can pick up and drop somewhere else**. The website around them is an Astro static site that exists
 mainly to show them running, let you tune them, and hand you the source.
@@ -31,7 +31,7 @@ wheel.dispose();               // and hand the GPU memory back
 `start()`, `stop()`, `dispose()` and `setParam(key, value)` are the entire API.
 
 No module imports anything from this website. Not the layout, not the config,
-not a store, not a context. They import `three` and two or three small helpers
+not a store, not a context. The WebGL modules import `three` and a few small helpers
 from `src/lib/`, and nothing else. That is the whole design, and everything
 else in this repo follows from it.
 
@@ -41,7 +41,7 @@ else in this repo follows from it.
 2. Copy the helpers it imports — its page on the site lists them exactly, and
    so do the import lines at the top of the file. It is usually
    `src/lib/stage.js` and `src/lib/pointer.js`.
-3. `npm i three`
+3. For WebGL modules, `npm i three`. Native WebGPU modules need no packages.
 
 That is it. There are no assets to bring: every texture in this project is
 drawn with canvas2d at runtime, so there is no `public/` folder to keep in sync
@@ -94,7 +94,7 @@ src/
 ```
 
 `src/lib/stage.js` is the file to read first. It is 280 lines and it is the
-thing every module sits on.
+base for WebGL modules; `webgpu-stage.js` handles native GPU modules.
 
 ### Why the code looks like this
 
@@ -195,6 +195,8 @@ two things.
 
 | module | what it is | cost |
 |---|---|---|
+| Aether Loom | native WebGPU particle braid | heavy |
+| Obsidian Resonator | native WebGPU wave field in black metal | heavy |
 | Sidereal Engine | a brass armillary instrument with elliptical orbits and a dark sun | medium |
 | Lorenz Reliquary | an RK4 Lorenz trajectory, blue-green and gold, in a spare brass frame | medium |
 | Nocturne Iris | overlapping steel aperture leaves above a coated optical element | medium |
@@ -264,3 +266,21 @@ Run the instrument mathematics and geometry checks with:
 ```bash
 node --test tests/instruments.test.mjs
 ```
+
+## Native WebGPU studies
+
+- **Aether Loom** uses a WGSL compute shader to advance up to 131,072 particles
+  around a braided torus knot, then renders the same storage buffer as instanced light.
+- **Obsidian Resonator** advances a damped wave field in alternating GPU buffers
+  and shades it as black metal inside an engraved brass rim. Move the pointer to
+  reposition the oscillator. This is an artistic numerical study.
+
+Both return the usual synchronous handle plus `ready`, a promise that settles
+when initialization finishes. Use HTTPS or localhost. The visible backend badge
+confirms whether GPU compute is active; unsupported devices and device loss switch
+to an explicitly labelled Canvas2D study. The fallback is not the GPU simulation.
+The lifecycle pauses hidden work, respects reduced motion, and destroys buffers,
+textures and devices on disposal, including disposal during asynchronous startup.
+Copy the module and every helper listed on its detail page, preserving folders.
+
+Run all numerical and lifecycle checks with `node --test tests/*.test.mjs`.
