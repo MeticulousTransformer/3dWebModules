@@ -265,6 +265,24 @@ fantastical: a lens, an iris, a light, a strip of film.
 
 ---
 
+## Deploying
+
+Pushing to `kml` builds the site and publishes it to GitHub Pages
+(`.github/workflows/deploy.yml`). One-time setup on GitHub:
+**Settings -> Pages -> Source: GitHub Actions**. It ends up at
+<https://meticuloustransformer.github.io/3dWebModules/>.
+
+Pages serves a project repo from `/3dWebModules/` rather than `/`, so the workflow builds
+with `SITE_BASE=/3dWebModules/`. `src/link.js` is the only file that reads it — every
+internal link in the site goes through `link()`, so the same source builds
+correctly at both paths. To reproduce the deployed build locally:
+
+```bash
+SITE_BASE=/3dWebModules/ npm run build
+```
+
+---
+
 ## Notes
 
 - Fonts are Cinzel and JetBrains Mono, loaded from Google Fonts. If you would
@@ -272,6 +290,3 @@ fantastical: a lens, an iris, a light, a strip of film.
 - The simplex noise in `src/lib/glsl.js` is Ashima Arts' standard
   implementation, MIT licensed, unmodified.
 - Everything else here is yours. Take it.
-#   3 d W e b M o d u l e s 
- 
- 

@@ -10,8 +10,7 @@ export const SITE = {
     'A workbench of isolated three.js modules — alchemy, Georgian and Japanese sign, physics and neon. Every one is a single file you can lift straight into another project.',
 
   links: {
-    // TODO: put your handle here
-    github: 'https://github.com/',
+    github: 'https://github.com/MeticulousTransformer/3dWebModules',
     studio: 'https://smartproduction.ge',
   },
 

@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import ModuleCanvas from '../components/ModuleCanvas.astro';
 import ModuleCard from '../components/ModuleCard.astro';
 import { MODULES, FAMILIES, familyCounts } from '../modules/index.js';
+import { link } from '../link.js';
 
 const counts = familyCounts();
 import { SITE } from '../site.config.js';
@@ -117,7 +118,7 @@ const tuning = [
         between them. Built as a machine with rims and struts, not a flat emblem — because
         the interesting part of <em>as above, so below</em> is that it describes a mechanism.
       </p>
-      <a class="button" href="/m/hermetic-seal">read the source</a>
+      <a class="button" href={link('/m/hermetic-seal')}>read the source</a>
     </div>
   </section>
 
@@ -132,7 +133,7 @@ const tuning = [
         the opposite springing point — so the apex lands where it should and you never have
         to guess at it.
       </p>
-      <a class="button" href="/m/cathedral-nave">read the source</a>
+      <a class="button" href={link('/m/cathedral-nave')}>read the source</a>
     </div>
     <div class="feature__canvas">
       <ModuleCanvas id="cathedral-nave" accent="moon" height="100%" />

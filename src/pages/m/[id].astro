@@ -4,6 +4,7 @@ import Base from '../../layouts/Base.astro';
 import ModuleCanvas from '../../components/ModuleCanvas.astro';
 import ModuleControls from '../../components/ModuleControls.astro';
 import { MODULES } from '../../modules/index.js';
+import { link } from '../../link.js';
 import { getSource, getDependencies, getSourceStats } from '../../modules/sources.js';
 
 export function getStaticPaths() {
@@ -111,11 +112,11 @@ instance.dispose();`}</code></pre>
 
   <!-- ============ next ============ -->
   <nav class="page pager reveal">
-    <a class="pager__link" href={`/m/${previous.id}`}>
+    <a class="pager__link" href={link(`/m/${previous.id}`)}>
       <span class="label">previous</span>
       <span class="pager__name">{previous.title}</span>
     </a>
-    <a class="pager__link pager__link--next" href={`/m/${next.id}`}>
+    <a class="pager__link pager__link--next" href={link(`/m/${next.id}`)}>
       <span class="label">next</span>
       <span class="pager__name">{next.title}</span>
     </a>
