@@ -2,9 +2,10 @@
 
 A furnace for 3D web modules.
 
-Thirty pieces using Three.js and native WebGPU — alchemy, Georgian and Japanese sign, physics,
-chemistry, neon, and a wing of gothic stone — each written as **one file you
-can pick up and drop somewhere else**. The website around them is an Astro static site that exists
+Forty-two pieces using Three.js and native WebGPU — alchemy, Georgian and Japanese sign, physics,
+chemistry, neon, a wing of gothic stone, a studio bench of optics and a
+brassworks of real mechanisms — each written as **one file you can pick up and
+drop somewhere else**. The website around them is an Astro static site that exists
 mainly to show them running, let you tune them, and hand you the source.
 
 ```bash
@@ -74,6 +75,8 @@ src/
     fullscreen.js     a quad that always covers the canvas, for shader-only work
     pingpong.js       two render targets that take turns — simulations on the GPU
     lightshaft.js     the beam through a high window, faked with one quad
+    filmlook.js       grain, gate weave and a vignette, laid over the top
+    gears.js          involute tooth profiles, and the phase that makes them mesh
     random.js         seeded randomness, so a rebuild gives back what you had
     glyphs.js         characters -> textures (atlas or strip)
     textures.js       procedural glows and environment maps
@@ -119,7 +122,7 @@ This is not a claim, it is a handful of specific decisions:
   tab, zero frames are drawn.
 - **WebGL contexts are budgeted.** A browser only gives you eight to sixteen
   live contexts before it starts silently killing the oldest. The gallery has
-  thirty canvases, so `mount-manager.js` mounts modules as they scroll in and
+  forty-four canvases, so `mount-manager.js` mounts modules as they scroll in and
   disposes them when they leave — three alive at a time on a phone, six on a
   desktop. Verified, not assumed.
 - **Filtering falls out of that for free.** Hiding a card takes it out of the
@@ -134,7 +137,7 @@ This is not a claim, it is a handful of specific decisions:
 - Astro ships **no JavaScript at all** until a canvas needs it, and three.js is
   split into its own chunk so it is downloaded once and cached for every module.
 
-### Three things learned the hard way
+### Five things learned the hard way
 
 `stage.dispose()` cancels the frame loop, disconnects both observers, removes
 its listeners, walks the scene releasing every geometry, material and texture,
@@ -157,6 +160,16 @@ looked like it worked for a while, because the property was being set correctly
 and the property was all the test looked at. `base.css` now carries an explicit
 `[hidden] { display: none !important }`, and the test counts what actually has
 a layout box.
+
+**`Color.setScalar` writes r = g = b**, which silently throws away a tint. To
+dim something without greying it, `.copy(base).multiplyScalar(k)`.
+
+**A resize that changed nothing used to dispatch nothing**, so a canvas that
+already had its final size when the stage was built never fired `onResize` at
+all — and any module scaling itself to fit stayed at scale 1. That hid for a
+long time, because most fits are `Math.min(1, …)` and 1 is what you get anyway.
+It only showed up on the first module that needed to *shrink*. `start()` now
+forces one dispatch.
 
 ---
 
@@ -225,6 +238,54 @@ two things.
 | Ashen Ember | a fire in a ring of stones, and nothing else | medium |
 | Iron Chandelier | a wrought corona on a chain, real pendulum physics on two axes | light |
 | The Tolling | a bell and a clapper on two pendulums; the rhythm is the difference | light |
+| Aperture Iris | every blade a plain disc; the opening is what none of them cover | light |
+| Bokeh Field | defocus that conserves energy, with cat's-eye clipping at the edges | medium |
+| Lens Cutaway | three elements with light actually traced through by Snell's law | medium |
+| Anamorphic Flare | the streak, and ghosts marching through the centre of frame | heavy |
+| Light Rig | key, fill and rim on a seamless, with the fixtures left in shot | medium |
+| Frame Ribbon | 35mm curving through the dark, every frame drawn from two uvs | medium |
+| Gear Train | six gears with involute teeth that genuinely mesh | light |
+| Escapement | a pendulum and an anchor; the tick is not scheduled anywhere | light |
+| Beam Engine | a linkage solved by circle intersection, not keyframed | medium |
+| Flyball Governor | a closed feedback loop that hunts and settles | light |
+| Difference Engine | Babbage's columns, counting the cubes by addition alone | light |
+| Orrery | brass planets at their true relative periods | medium |
+
+---
+
+## The studio set
+
+The last six were made to sit on a particular site — smartproduction.ge, a
+video and photo studio in Tbilisi. Their stylesheet is five custom properties:
+
+```
+--background #0b0b0c   --foreground #f4f1ea   --muted #a8a39a
+--accent     #b9975b   --border     #1f1f23
+```
+
+Those exact values are the `STUDIO` group in `src/lib/palette.js`, so a module
+dropped onto that site is already the right colour. Brass accent, warm off-white,
+near-black ground. And because a production company's site should let the
+footage supply the colour, these six are optical and mechanical rather than
+fantastical: a lens, an iris, a light, a strip of film.
+
+---
+
+## Deploying
+
+Pushing to `kml` builds the site and publishes it to GitHub Pages
+(`.github/workflows/deploy.yml`). One-time setup on GitHub:
+**Settings -> Pages -> Source: GitHub Actions**. It ends up at
+<https://meticuloustransformer.github.io/3dWebModules/>.
+
+Pages serves a project repo from `/3dWebModules/` rather than `/`, so the workflow builds
+with `SITE_BASE=/3dWebModules/`. `src/link.js` is the only file that reads it — every
+internal link in the site goes through `link()`, so the same source builds
+correctly at both paths. To reproduce the deployed build locally:
+
+```bash
+SITE_BASE=/3dWebModules/ npm run build
+```
 
 ---
 

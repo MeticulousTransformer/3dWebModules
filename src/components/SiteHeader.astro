@@ -1,12 +1,13 @@
 ---
 import { SITE } from '../site.config.js';
+import { link } from '../link.js';
 import { MODULES } from '../modules/index.js';
 
 const { current } = Astro.props;
 ---
 
 <header class="header">
-  <a class="mark" href="/" aria-label={SITE.name}>
+  <a class="mark" href={link('/')} aria-label={SITE.name}>
     <svg viewBox="0 0 32 32" aria-hidden="true" class="mark__glyph">
       <g stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none">
         <path d="M21 16 L28 16" /><path d="M19.1 20.9 L23.5 25.4" />
@@ -20,10 +21,10 @@ const { current } = Astro.props;
   </a>
 
   <nav class="nav">
-    <a href="/#modules" class="nav__link" aria-current={current === 'modules' ? 'page' : undefined}>
+    <a href={link('/#modules')} class="nav__link" aria-current={current === 'modules' ? 'page' : undefined}>
       modules<span class="nav__count">{MODULES.length}</span>
     </a>
-    <a href="/#lift" class="nav__link">lift</a>
+    <a href={link('/#lift')} class="nav__link">lift</a>
     <a href={SITE.links.github} class="nav__link" rel="me noreferrer" target="_blank">github</a>
   </nav>
 </header>

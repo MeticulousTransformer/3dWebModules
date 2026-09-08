@@ -537,6 +537,214 @@ export const MODULES = [
       { key: 'clapperLength', label: 'clapper', min: 0.25, max: 1.0, step: 0.01 },
     ],
   },
+
+  // ---- fourth furnace load: the studio ------------------------------------
+  // Made with smartproduction.ge in mind: black frame, monochrome, the footage
+  // supplies the colour. So these are optical and mechanical rather than
+  // fantastical — a lens, an iris, a light, a strip of film.
+
+  {
+    id: 'aperture-iris',
+    title: 'Aperture Iris',
+    subtitle: 'f/1.4 — f/16',
+    accent: 'brass',
+    cost: 'light',
+    tags: ['studio', 'optics', 'mechanism', 'film'],
+    blurb:
+      'A camera iris built the way one works. Every blade is a plain disc, and the opening is just the part no disc covers — so the flat sides and rounded corners come out on their own, and stopping down is one number.',
+    teaches: 'geometry that falls out of the mechanism, rigid parts instead of rebuilt ones, diffraction stars',
+    controls: [
+      { key: 'starburst', label: 'starburst', min: 0, max: 3, step: 0.05, live: true },
+      { key: 'dwell', label: 'hold at stop', min: 0.2, max: 6, step: 0.1, live: true },
+      { key: 'blades', label: 'blades', min: 5, max: 16, step: 1 },
+    ],
+  },
+  {
+    id: 'bokeh-field',
+    title: 'Bokeh Field',
+    subtitle: 'behind the subject',
+    accent: 'tung',
+    cost: 'medium',
+    tags: ['studio', 'optics', 'depth of field', 'film'],
+    blurb:
+      'Out-of-focus highlights, with the three things that make them believable: the shape is the aperture, a highlight spread over more area is dimmer, and away from the middle of the frame the barrel clips them into cat’s eyes.',
+    teaches: 'circle of confusion, energy-conserving defocus, optical vignetting, lateral colour fringing',
+    controls: [
+      { key: 'aperture', label: 'aperture', min: 0.2, max: 2.2, step: 0.05, live: true },
+      { key: 'blades', label: 'blades', min: 4, max: 14, step: 1, live: true },
+      { key: 'catsEye', label: 'cat’s eye', min: 0, max: 2, step: 0.05, live: true },
+      { key: 'rim', label: 'rim', min: 0, max: 2, step: 0.05, live: true },
+    ],
+  },
+  {
+    id: 'lens-cutaway',
+    title: 'Lens Cutaway',
+    subtitle: 'snell, three times',
+    accent: 'brass',
+    cost: 'medium',
+    tags: ['studio', 'optics', 'physics', 'real maths'],
+    blurb:
+      'Three elements in section, with light actually traced through them. Every ray is intersected with each surface and bent by Snell’s law — so where they cross is where this glass focuses, not where it was drawn to.',
+    teaches: 'ray–sphere intersection, vector refraction, chromatic aberration by tracing three indices',
+    controls: [
+      { key: 'spread', label: 'fan', min: 0.2, max: 1.6, step: 0.05, live: true },
+      { key: 'dispersion', label: 'dispersion', min: 0, max: 4, step: 0.1, live: true },
+      { key: 'tilt', label: 'field angle', min: 0, max: 2, step: 0.05, live: true },
+      { key: 'rays', label: 'rays', min: 3, max: 29, step: 2 },
+    ],
+  },
+  {
+    id: 'anamorphic-flare',
+    title: 'Anamorphic Flare',
+    subtitle: 'internal reflections',
+    accent: 'flare',
+    cost: 'heavy',
+    tags: ['studio', 'optics', 'film', 'shader'],
+    blurb:
+      'The long blue streak, the ghosts strung along the line from the light through the middle of the frame, and the warm bleed around the source. The ghosts march through the centre because that is where light bouncing inside a lens comes back out.',
+    teaches: 'why flare chains point at the centre, iris-shaped ghosts, halation, lens grime',
+    controls: [
+      { key: 'streak', label: 'streak', min: 0, max: 3, step: 0.05, live: true },
+      { key: 'ghosts', label: 'ghosts', min: 0, max: 3, step: 0.05, live: true },
+      { key: 'halation', label: 'halation', min: 0, max: 3, step: 0.05, live: true },
+      { key: 'dirt', label: 'lens dirt', min: 0, max: 1, step: 0.02, live: true },
+    ],
+  },
+  {
+    id: 'light-rig',
+    title: 'Light Rig',
+    subtitle: 'key, fill, rim',
+    accent: 'paper',
+    cost: 'medium',
+    tags: ['studio', 'lighting', 'shadows', 'product'],
+    blurb:
+      'Three-point lighting on a seamless, with the fixtures left in shot. Key does the modelling and throws the shadow, fill decides how deep it goes, rim separates the subject from the backdrop. Drag to walk the key round.',
+    teaches: 'shadow maps, a cyclorama built by bending a plane, reading a lighting setup by moving it',
+    controls: [
+      { key: 'key', label: 'key', min: 0, max: 2.5, step: 0.05, live: true },
+      { key: 'fill', label: 'fill', min: 0, max: 1.5, step: 0.02, live: true },
+      { key: 'rim', label: 'rim', min: 0, max: 3, step: 0.05, live: true },
+      { key: 'keyHeight', label: 'key height', min: 0.4, max: 5, step: 0.1, live: true },
+    ],
+  },
+  {
+    id: 'frame-ribbon',
+    title: 'Frame Ribbon',
+    subtitle: '35mm',
+    accent: 'brass',
+    cost: 'medium',
+    tags: ['studio', 'film', 'ribbon', 'contact sheet'],
+    blurb:
+      'A length of film curving through the dark with something exposed on every frame. Sprocket holes, frame lines, edge markings and the picture inside each frame all come out of two texture coordinates, so a hundred frames cost what one does.',
+    teaches: 'everything from uv, procedural tonal studies, ribbons twisted along their own length',
+    controls: [
+      { key: 'speed', label: 'transport', min: -0.6, max: 0.6, step: 0.01, live: true },
+      { key: 'frames', label: 'frames', min: 6, max: 60, step: 1, live: true },
+      { key: 'curl', label: 'twist', min: 0, max: 2.4, step: 0.05, live: true },
+      { key: 'exposure', label: 'exposure', min: 0.3, max: 2.5, step: 0.05, live: true },
+    ],
+  },
+
+  // ---- fifth furnace load: the brassworks ---------------------------------
+
+  {
+    id: 'gear-train',
+    title: 'Gear Train',
+    subtitle: 'involute, 20 degrees',
+    accent: 'polished',
+    cost: 'light',
+    tags: ['steampunk', 'mechanism', 'brass', 'real maths'],
+    blurb:
+      'Six gears that genuinely mesh. The teeth are involutes — the only curve that transmits motion at a constant ratio — and every gear’s angle is derived from the one before it, so the train runs at the ratios its tooth counts demand.',
+    teaches: 'involute tooth profiles, the exact meshing-phase formula, deriving motion instead of animating it',
+    controls: [
+      { key: 'speed', label: 'drive', min: -3, max: 3, step: 0.05, live: true },
+      { key: 'module', label: 'gear module', min: 0.05, max: 0.16, step: 0.005 },
+      { key: 'depth', label: 'face width', min: 0.04, max: 0.4, step: 0.01 },
+    ],
+  },
+
+  {
+    id: 'escapement',
+    title: 'Escapement',
+    subtitle: 'tick',
+    accent: 'polished',
+    cost: 'light',
+    tags: ['steampunk', 'mechanism', 'physics', 'horology'],
+    blurb:
+      'The part of a clock that makes it a clock. The anchor lets exactly one tooth past per swing, and the wheel shoves the pendulum back in return — which is the only reason a pendulum that would otherwise die keeps going for a century.',
+    teaches: 'pendulum integration, escapement impulse, period falling out of rod length',
+    controls: [
+      { key: 'rodLength', label: 'rod length', min: 0.5, max: 2.4, step: 0.05, live: true },
+      { key: 'damping', label: 'friction', min: 0.02, max: 1.2, step: 0.02, live: true },
+      { key: 'teeth', label: 'wheel teeth', min: 12, max: 48, step: 2 },
+    ],
+  },
+  {
+    id: 'beam-engine',
+    title: 'Beam Engine',
+    subtitle: 'solved, not animated',
+    accent: 'copper',
+    cost: 'medium',
+    tags: ['steampunk', 'mechanism', 'physics', 'steam'],
+    blurb:
+      'One number goes in — the crank angle — and the linkage works out the rest. The connecting rod has a fixed length and the beam end travels a fixed circle, so the beam sits wherever those two facts intersect.',
+    teaches: 'circle–circle intersection as a linkage solver, branch continuity, slider-crank',
+    controls: [
+      { key: 'speed', label: 'speed', min: 0, max: 4, step: 0.05, live: true },
+      { key: 'steam', label: 'steam', min: 0, max: 2, step: 0.05, live: true },
+      { key: 'crankRadius', label: 'crank throw', min: 0.25, max: 0.8, step: 0.01, live: true },
+    ],
+  },
+  {
+    id: 'flyball-governor',
+    title: 'Flyball Governor',
+    subtitle: 'it corrects itself',
+    accent: 'polished',
+    cost: 'light',
+    tags: ['steampunk', 'mechanism', 'physics', 'control'],
+    blurb:
+      'The first machine that ever corrected itself. Spin faster, the balls fly out, the sleeve lifts, the throttle closes, it slows. Nothing in it knows what speed it should hold — the speed is just where the two effects cancel. Drag to change the load.',
+    teaches: 'a closed feedback loop with real dynamics, hunting and settling, linkage geometry',
+    controls: [
+      { key: 'load', label: 'load', min: 0, max: 2.6, step: 0.05, live: true },
+      { key: 'power', label: 'steam', min: 0.5, max: 6, step: 0.1, live: true },
+      { key: 'inertia', label: 'flywheel', min: 0.4, max: 8, step: 0.1, live: true },
+      { key: 'damping', label: 'joint friction', min: 0.1, max: 3, step: 0.05, live: true },
+    ],
+  },
+  {
+    id: 'difference-engine',
+    title: 'Difference Engine',
+    subtitle: '0, 1, 8, 27, 64',
+    accent: 'ember',
+    cost: 'light',
+    tags: ['steampunk', 'computation', 'babbage', 'mechanism'],
+    blurb:
+      'Babbage’s machine, really computing. Third differences of a cubic are constant, so every value after the first can be had with nothing but addition. Seed it 0, 1, 6, 6 and the answer column counts the cubes — no multiplication anywhere in it.',
+    teaches: 'the method of differences, odometer wheels from one scrolling texture, staggered carry',
+    controls: [
+      { key: 'cycleSeconds', label: 'cycle', min: 0.6, max: 8, step: 0.1, live: true },
+      { key: 'digits', label: 'digits', min: 3, max: 8, step: 1 },
+      { key: 'columns', label: 'columns', min: 2, max: 6, step: 1 },
+    ],
+  },
+  {
+    id: 'orrery',
+    title: 'Orrery',
+    subtitle: 'the real periods',
+    accent: 'brass',
+    cost: 'medium',
+    tags: ['steampunk', 'brass', 'astronomy', 'mechanism'],
+    blurb:
+      'A brass planetary machine turning at the true relative rates — Mercury round four times a year, Jupiter very nearly twelve, Saturn twenty-nine and a half. The distances are not to scale. They never are.',
+    teaches: 'periods as the only thing that must be right, reusing the gear library, armillary detail',
+    controls: [
+      { key: 'yearsPerSecond', label: 'handle', min: 0.02, max: 3, step: 0.02, live: true },
+      { key: 'tilt', label: 'tilt', min: 0, max: 1.2, step: 0.02, live: true },
+      { key: 'showRings', label: 'ring & zodiac', min: 0, max: 1, step: 1, live: true },
+    ],
+  },
 ];
 
 export const MODULE_IDS = MODULES.map((module) => module.id);
@@ -555,6 +763,8 @@ export const FAMILIES = [
   { id: 'physics', label: 'physics', tags: ['physics', 'chemistry', 'emergence', 'growth', 'turing', 'sound', 'orbits'] },
   { id: 'shaders', label: 'shaders', tags: ['shader', 'gpgpu', 'fractal', 'kaleidoscope'] },
   { id: 'gothic', label: 'gothic', tags: ['gothic', 'cathedral', 'fire', 'iron', 'moon', 'bronze'] },
+  { id: 'studio', label: 'studio', tags: ['studio', 'optics', 'lighting', 'film'] },
+  { id: 'works', label: 'brassworks', tags: ['steampunk', 'mechanism', 'brass', 'computation'] },
   { id: 'tech', label: 'tech', tags: ['matrix', 'cyberpunk', 'instancing', 'infinite', 'grid'] },
 ];
 

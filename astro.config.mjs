@@ -1,7 +1,15 @@
 import { defineConfig } from 'astro/config';
 
+// GitHub Pages serves a project repo from https://<user>.github.io/<repo>/, so
+// the built pages need that prefix baked in. The deploy workflow sets SITE_BASE
+// to '/3dWebModules/'; everywhere else it is unset and the site lives at '/'.
+// To reproduce the deployed build locally:  SITE_BASE=/3dWebModules/ npm run build
+const BASE = process.env.SITE_BASE || '/';
+
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://meticuloustransformer.github.io',
+  base: BASE,
   // Astro ships zero JavaScript by default. The only scripts on any page here
   // are the module loader and three.js, and both arrive lazily.
   prefetch: { prefetchAll: true, defaultStrategy: 'viewport' },

@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import ModuleCanvas from '../components/ModuleCanvas.astro';
 import ModuleCard from '../components/ModuleCard.astro';
 import { MODULES, FAMILIES, familyCounts } from '../modules/index.js';
+import { link } from '../link.js';
 
 const counts = familyCounts();
 import { SITE } from '../site.config.js';
@@ -118,7 +119,7 @@ const tuning = [
         between them. Built as a machine with rims and struts, not a flat emblem — because
         the interesting part of <em>as above, so below</em> is that it describes a mechanism.
       </p>
-      <a class="button" href="/m/hermetic-seal">read the source</a>
+      <a class="button" href={link('/m/hermetic-seal')}>read the source</a>
     </div>
   </section>
 
@@ -132,7 +133,7 @@ const tuning = [
         and meridians turning through one another. Tune the motion, tilt the axis, or open
         the source and take the mechanism apart.
       </p>
-      <a class="button" href="/m/sidereal-engine">explore the instrument</a>
+      <a class="button" href={link('/m/sidereal-engine')}>explore the instrument</a>
     </div>
     <div class="feature__canvas">
       <ModuleCanvas id="sidereal-engine" accent="gold" height="100%" />
@@ -148,6 +149,11 @@ const tuning = [
         Canvases wake as they scroll into view and are torn down when they leave, so the
         page never holds more live WebGL contexts than a browser is willing to give it.
         Three at a time on a phone, six on a desktop.
+      </p>
+      <p class="prose">
+        The <strong>studio</strong> set is the newest: a lens, an iris, a light, a strip of
+        film. Optical rather than fantastical, and nearly monochrome, because on a
+        production company's site the footage should be the only thing in colour.
       </p>
     </header>
 
